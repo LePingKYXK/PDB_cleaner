@@ -2,7 +2,7 @@
 A Python script to clean up the PDB file
 
 * ANISOU (data copied from 1lk2.pdb) 
-
+~~~~
 ATOM      1  N   GLY A   1      66.440  45.780   5.177  1.00 14.10           N  
 ANISOU    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N  
 ATOM      2  CA  GLY A   1      65.947  45.284   3.863  1.00 12.08           C  
@@ -11,12 +11,12 @@ ATOM      3  C   GLY A   1      64.961  46.275   3.303  1.00 10.99           C
 ANISOU    3  C   GLY A   1     1471   1204   1500     36     50    108       C  
 ATOM      4  O   GLY A   1      64.683  47.291   3.943  1.00 11.91           O  
 ANISOU    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O  
-
+~~~~
 
 * HETATM
 
 * non-standard amino acid residues (data copied from 2o2x.pdb)
-
+~~~~
 ATOM    821  OD1 ASP A 112      25.580  11.019  35.906  1.00 12.28           O  
 ATOM    822  OD2 ASP A 112      24.586   9.016  35.848  1.00 11.81           O  
 HETATM  823  N   MSE A 113      25.018  10.050  30.641  1.00  9.26           N  
@@ -29,9 +29,9 @@ HETATM  829 SE   MSE A 113      28.681   7.732  27.499  0.75 12.65          SE
 HETATM  830  CE  MSE A 113      30.013   8.895  28.258  1.00 18.85           C  
 ATOM    831  N   VAL A 114      24.306  10.362  27.178  1.00  7.56           N  
 ATOM    832  CA  VAL A 114      23.308  10.072  26.129  1.00  7.93           C  
-
+~~~~
 * alternate locations (data copied from 3ife.pdb)
-
+~~~~
 ATOM     61  N  AMET A   1      50.168  41.639  17.547  0.60 12.43           N  
 ATOM     62  N  BMET A   1      50.168  41.661  17.556  0.40 12.78           N  
 ATOM     63  CA AMET A   1      51.352  40.837  17.758  0.60 12.25           C  
@@ -40,9 +40,9 @@ ATOM     65  C  AMET A   1      51.124  39.353  17.411  0.60 11.89           C
 ATOM     66  C  BMET A   1      51.114  39.365  17.412  0.40 12.17           C  
 ATOM     67  O  AMET A   1      51.943  38.758  16.723  0.60 10.86           O  
 ATOM     68  O  BMET A   1      51.932  38.803  16.691  0.40 11.55           O  
-
+~~~~
 * insertion codes
-
+~~~~
 ATOM   1258  CD1 ILE A 185       4.002  11.557  18.921  1.00 19.47           C  
 ANISOU 1258  CD1 ILE A 185     2567   2632   2200    -66   -252    125       C  
 ATOM   1259  N   PRO A 186       6.584  15.226  16.396  1.00 16.95           N  
@@ -89,10 +89,10 @@ ATOM   1279  OG  SER A 186B      3.785  17.181  21.503  1.00 16.37           O
 ANISOU 1279  OG  SER A 186B    2158   2085   1978      2   -220    264       O  
 ATOM   1280  N   LYS A 187       5.518  19.323  22.546  1.00 14.62           N  
 ANISOU 1280  N   LYS A 187     1974   1786   1795     -5   -177    290       N  
-
+~~~~
 
 * When I save the cleaned results, I found another format issue... (data copied from 1bty.pdb)
-
+~~~~
 ATOM      1  N   ILE A  16      35.700  19.589  20.234  1.00 10.94           N  
 ATOM      2  CA  ILE A  16      35.550  20.497  19.066  1.00 10.97           C  
 ATOM      3  C   ILE A  16      36.807  20.237  18.234  1.00  9.79           C  
@@ -111,6 +111,6 @@ ATOM     15 HG23 ILE A  16      36.462  22.839  17.694  1.00 11.56           H
 ATOM     16 HD11 ILE A  16      32.786  21.397  19.326  1.00 12.90           H  
 ATOM     17 HD12 ILE A  16      32.266  22.577  20.509  1.00 12.70           H  
 ATOM     18 HD13 ILE A  16      33.010  23.114  19.032  1.00 12.55           H  
-
+~~~~
 where HG12 and so on are left-shifted in the original PDB files, since a blank spece 
 needs to reserve in front fo the "ILE" as the alternate location.
