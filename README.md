@@ -154,4 +154,4 @@ ATOM     39  H   GLY A  18      39.816  21.025  15.573  1.00 10.61           H
 ATOM     40  HA2 GLY A  18      40.513  22.729  14.176  1.00 11.84           H  
 ATOM     41  HA3 GLY A  18      39.023  22.532  13.283  1.00 11.64           H  
 </pre>
-where "HG12" and the following are one character left-shifted compared with the preceding lines.
+where "HG12", "HG13", "HG21", "HG22", "HG23", "HD11", "HD12", and "HD13" are one character left-shifted compared with the preceding lines.
