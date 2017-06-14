@@ -258,17 +258,18 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     #### After deleting non-std residues, choose only one chain.
     chains = check_multiple_chains(f, pdb_info)
 
+    #### PDB file has multiple chains and choose the longest one.
     if (chains and poly == 'one'):
         pdb_info = pdb_info[pdb_info.ChainID == pdb_info.ChainID.mode()[0]]
         pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_single_chain.pdb"))
         output_format(pdb_info, outputf)
-    #### PDB file with multiple chains and choose all chains.
+    #### PDB file has multiple chains and choose all chains.
     elif (chains and poly == 'all'):
         pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_multichains.pdb"))
         output_format(pdb_info, outputf)
-    #### PDB file with only one chain.
+    #### PDB file has only one chain.
     else:
         pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_one_chain.pdb"))
