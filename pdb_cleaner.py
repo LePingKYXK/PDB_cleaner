@@ -2,7 +2,7 @@
 
 ''' The aim of this script is for cleanning up the PDB files.
 Most of time, the PDB files are complicated, which have lots of redundant information.
-The detailed descriptions are shown in the README file.
+The detailed descriptions about them are shown in the README file.
 
 ##################################################################################
 author: Dr. Huan Wang
@@ -11,10 +11,12 @@ copyright: The Hebrew University of Jerusalem, and The Open University of Israel
 ##################################################################################
 
 # How to run this script:
-python PATH/pdb_cleaner.py PATH_CONTAINS_PDB_FILES/
+python PATH/pdb_cleaner.py
 
 here, PATH is the directory contains this script, 
-whereas the PATH_CONTAINS_PDB_FILES/ is the directory in which the PDB files located.
+Then, the program will ask you to specified the directory that the PDB files located, 
+and how to deal with multiple chains (keep all the chains or just one of them).
+If you choose "one", the program will choose the longest chain in the PDB file.
 '''
 
 from numpy import char
