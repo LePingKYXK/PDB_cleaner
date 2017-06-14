@@ -24,11 +24,10 @@ import os, sys, time
 
 
 
-path = sys.argv[1]
-
 def find_PDB_files(path):
     suffix = ".pdb"
     files = np.asarray([f for f in os.listdir(path) if f.endswith(suffix)])
+#    print(files)
     return np.sort(files)
 
 
@@ -70,7 +69,7 @@ def pdb_reader(filename):
                  line.startswith("HETATM") or \
                  line.startswith("TER"):
 
-                info = data_structure(line)
+                info = pdb_structure(line)
                 pdb_info.append(info)
                 
             elif line.startswith("SIGATM"):
@@ -84,9 +83,11 @@ def pdb_reader(filename):
         
     pdb_info = pd.DataFrame(pdb_info, columns=items)
 
+    #####################################################################
     #### locates the last 'TER' in the sequence.
     terminal_id = pdb_info[pdb_info["Records"] == "TER"].index.tolist()
 
+    #####################################################################    
     #### return the pdb information without solvent.
     if pdb_info.shape[0] > terminal_id[-1]:
         return pdb_info.drop(pdb_info.index[terminal_id[-1]+1:])
@@ -98,23 +99,23 @@ def pdb_reader(filename):
         print("Error!")
 
 
-def data_structure(string):
-    data = [string[0:6].strip(),      # 0.  record name
-            string[6:12].strip(),     # 1.  atom serial number 
-            string[12:16].strip(),    # 2.  atom name with type
-            string[16],               # 3.  alternate locatin indicator
-            string[17:20].strip(),    # 4.  residue name
-            string[21],               # 5.  chain identifier
-            string[22:26].strip(),    # 6.  residue sequence number
-            string[26],               # 7.  insertion code
-            string[30:38].strip(),    # 8.  coordinates X
-            string[38:46].strip(),    # 9.  coordinates Y
-            string[46:54].strip(),    # 10. coordinates Z
-            string[54:60].strip(),    # 11. standard deviation of occupancy
-            string[60:66].strip(),    # 12. standard deviation of temperature
-            string[76:78].strip(),    # 13. element symbol
-            string[98:80].strip()]    # 14. charge on the atom
-    return data
+def pdb_structure(string):
+    pdb = [string[0:6].strip(),      # 0.  record name
+           string[6:12].strip(),     # 1.  atom serial number 
+           string[12:16].strip(),    # 2.  atom name with type
+           string[16],               # 3.  alternate locatin indicator
+           string[17:20].strip(),    # 4.  residue name
+           string[21],               # 5.  chain identifier
+           string[22:26].strip(),    # 6.  residue sequence number
+           string[26],               # 7.  insertion code
+           string[30:38].strip(),    # 8.  coordinates X
+           string[38:46].strip(),    # 9.  coordinates Y
+           string[46:54].strip(),    # 10. coordinates Z
+           string[54:60].strip(),    # 11. standard deviation of occupancy
+           string[60:66].strip(),    # 12. standard deviation of temperature
+           string[76:78].strip(),    # 13. element symbol
+           string[98:80].strip()]    # 14. charge on the atom
+    return pdb
 
 
 AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
@@ -129,8 +130,6 @@ def check_altloc(f, pdb_info):
     """ This function deals with the alternate location"""
     altloc = pd.unique(pdb_info.Alt_Loc)
     if ('A' in altloc) or ('B' in altloc):
-        print('!!{:} has alternative location!!!!!!!!!!!!!!!'.format(f))
-        print('The alternate locations are: {:}\n'.format(altloc))
         return (f, list(altloc))
 
 
@@ -139,7 +138,6 @@ def non_std_residues(f, pdb_info):
     res = pd.unique(pdb_info.ResName)
     nonstdRes = [i for i in res if i not in AMINO_ACIDS]
     if nonstdRes:
-        print('!!{:} has special Residue {:}\n'.format(f, nonstdRes))
         return (f, nonstdRes)
 
 
@@ -148,7 +146,6 @@ def check_negative_seqnum(f, pdb_info):
     important."""
     seq_num = np.array(pdb_info.Seq_Num, dtype=int)
     if (seq_num < 0).any():
-        print('==== {:} has negative sequence number! ====\n'.format(f))
         return f
 
 
@@ -157,14 +154,13 @@ def check_sequence_gaps(f, pdb_info):
     the differences of the sequence numbers."""
     seq_num = np.array(pdb_info.Seq_Num, dtype=int)
     seq_diff = np.abs(np.diff(seq_num))
+
     if np.any(seq_diff > 1):
         print('==== {:} has sequence gaps! ===='.format(f))
         gap_id = np.where(seq_diff > 1)[0]
         gap_head = seq_num[gap_id]
         gap_tail = seq_num[gap_id + 1]
         gap = list(zip(gap_head, gap_tail))
-        fmt = ''.join(("==== sequence gaps are: ", "{:}" * len(gap), "\n"))
-        print(fmt.format(*gap))
         return (f, gap)
 
 
@@ -172,19 +168,14 @@ def check_insertion_code(f, pdb_info):
     """ This function deals with the insertion code"""
     insert = pd.unique(pdb_info.InsCode)
     if ('A' in insert) or ('B' in insert):
-        print('!!{:} has insertion code!!!!!!!!!!!!!!!'.format(f))
-        print('The insertion_code are: {:}\n'.format(insert))
         return (f, list(insert))
 
 
 def check_multiple_chains(f, pdb_info):
     """ This function checks the multiple chains exist or not 
     in the sequence."""
-    chainid = np.asarray(pdb_info.ChainID)
-    chains = np.unique(chainid)
+    chains = pd.unique(pdb_info.ChainID)
     if len(chains) > 1:
-        print('=-=-= {:} has multiple chains! =-=-='.format(f))
-        print('=-=-= The chains are {:}  =-=-=\n'.format(chains))
         return (f, chains)
 
 
@@ -244,7 +235,7 @@ def save_report(altloc_info,non_std_Res,negativeSeq,seqGap_info,multiChains):
             fw.write(fmt5.format(m[0],*m[1]))
 
 
-def save_cleaned_PDB(path, f, pdb_info, nonstdRes):
+def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     ''' This function first clean up the PDB file, only remain one chain,
     the non-labeled and A-alternate location, throw away the non-standard
     amino acid residues, delete the insertion code lines and also change 
@@ -264,12 +255,25 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes):
 
     #### After deleting non-std residues, choose only one chain.
     chains = check_multiple_chains(f, pdb_info)
-    if chains:
-        pdb_info = pdb_info[pdb_info.ChainID == chains[1][0]]
 
-    pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
+    if (chains and poly == 'one'):
+        pdb_info = pdb_info[pdb_info.ChainID == pdb_info.ChainID.mode()[0]]
+        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
+        outputf = ''.join((path, f[:4], "_cleaned_single_chain.pdb"))
+        output_format(pdb_info, outputf)
+    #### PDB file with multiple chains and choose all chains.
+    elif (chains and poly == 'all'):
+        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
+        outputf = ''.join((path, f[:4], "_cleaned_multichains.pdb"))
+        output_format(pdb_info, outputf)
+    #### PDB file with only one chain.
+    else:
+        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
+        outputf = ''.join((path, f[:4], "_cleaned_one_chain.pdb"))
+        output_format(pdb_info, outputf)
 
-    outputf = ''.join((path, f[:4], "_cleaned.pdb"))
+
+def output_format(pdb_info, outputf):
     space = ' '
     with open(outputf, 'w') as fw:
         for line in pdb_info.values:
@@ -300,9 +304,14 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes):
         print(fmtprint.format(f, outputf))
 
 
-
 #############################################################################
 if __name__ == "__main__":
+    pathstr = '\nPlease type the directory contains PDB files: \n'
+    typestr = '\nIf you want to retain all chains, please type: all\n' \
+              'If you want to keep only one chain, please type: one \n'
+
+    path = input(pathstr)
+    poly = input(typestr)
     pdbfiles = find_PDB_files(path)
     
     altloc_info = []
@@ -327,29 +336,39 @@ if __name__ == "__main__":
 
         altloc = check_altloc(f, pdb_info)    # return a tuple
         if altloc:
+            print('!!{:} has alternative location!!!!!!!!!!!!!!!'.format(f))
+            print('The alternate locations are: {:}\n'.format(altloc))
             altloc_info.append(altloc)
 
         nonstdRes = non_std_residues(f, pdb_info)    # return a tuple
         if nonstdRes:
+            print('!!{:} has special Residue {:}\n'.format(f, nonstdRes))
             non_std_Res.append(nonstdRes)
 
         minusSeq = check_negative_seqnum(f, pdb_info)    # return the file name
         if minusSeq:
+            print('==== {:} has negative sequence number! ====\n'.format(f))
             negativeSeq.append(minusSeq)
 
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
+            fmt = ''.join(("==== sequence gaps are: ", "{:}" * len(gaps), "\n"))
+            print(fmt.format(*gaps))
             seqGap_info.append(gaps)
 
         insert = check_insertion_code(f, pdb_info)    # return a tuple
         if insert:
+            print('!!{:} has insertion code!!!!!!!!!!!!!!!'.format(f))
+            print('The insertion_code are: {:}\n'.format(insert))
             insert_info.append(insert)
 
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
+            print('=-=-= {:} has multiple chains! =-=-='.format(f))
+            print('=-=-= The chains are {:}  =-=-=\n'.format(chains))
             multiChains.append(chains)
         
-        save_cleaned_PDB(path, f, pdb_info, nonstdRes)
+        save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly)
         steptime = time.time() - start_time
         print(timefmt.format(steptime))
 
