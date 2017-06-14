@@ -110,7 +110,7 @@ ATOM   1280  N   LYS A 187       5.518  19.323  22.546  1.00 14.62           N
 ANISOU 1280  N   LYS A 187     1974   1786   1795     -5   -177    290       N  
 </pre>
 
-* When I save the cleaned results, I found another format issue... (data copied from 1bty.pdb)
+* When I save the cleaned results, I found another alignment issue... (data copied from 1bty.pdb)
 <pre>
 ATOM      1  N   ILE A  16      35.700  19.589  20.234  1.00 10.94           N  
 ATOM      2  CA  ILE A  16      35.550  20.497  19.066  1.00 10.97           C  
@@ -131,5 +131,4 @@ ATOM     16 <b>HD11</b> ILE A  16      32.786  21.397  19.326  1.00 12.90       
 ATOM     17 <b>HD12</b> ILE A  16      32.266  22.577  20.509  1.00 12.70           H  
 ATOM     18 <b>HD13</b> ILE A  16      33.010  23.114  19.032  1.00 12.55           H  
 </pre>
-where "HG12" and so on are left-shifted in the original PDB files, since a blank spece 
-needs to reserve in front fo the "ILE" as the alternate location.
+where "HG12" and the following are one character left-shifted compared with the preceding lines.
