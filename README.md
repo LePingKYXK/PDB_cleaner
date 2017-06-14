@@ -109,6 +109,7 @@ ANISOU 1279  OG  SER A 186<b>B</b>    2158   2085   1978      2   -220    264   
 ATOM   1280  N   LYS A 187       5.518  19.323  22.546  1.00 14.62           N  
 ANISOU 1280  N   LYS A 187     1974   1786   1795     -5   -177    290       N  
 </pre>
+As shown above, the same sequence number (186) labeled with two insertion codes (A and B), however, there are two kinds of residues ASP and SER!
 
 * When I save the cleaned results, I found another alignment issue... (data copied from 1bty.pdb)
 <pre>
