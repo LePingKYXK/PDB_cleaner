@@ -123,7 +123,7 @@ def pdb_structure(string):
 AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
                             'Cys', 'Gln', 'Glu', 'Gly',
                             'His', 'Ile', 'Leu', 'Lys',
-                            'Met', 'Phe', 'Pro', 'Sec', 
+                            'Met', 'Phe', 'Pro', 'Ser', 
                             'Thr', 'Trp', 'Tyr', 'Val']).upper()
 
 
