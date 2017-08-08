@@ -123,9 +123,8 @@ def pdb_structure(string):
 AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
                             'Cys', 'Gln', 'Glu', 'Gly',
                             'His', 'Ile', 'Leu', 'Lys',
-                            'Met', 'Phe', 'Pro', 'Pyl',
-                            'Sec', 'Ser', 'Thr', 'Trp',
-                            'Tyr', 'Val']).upper()
+                            'Met', 'Phe', 'Pro', 'Sec', 
+                            'Thr', 'Trp', 'Tyr', 'Val']).upper()
 
 
 def check_altloc(f, pdb_info):
