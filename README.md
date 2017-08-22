@@ -60,6 +60,78 @@ ATOM     43  CA  SER A  -2      47.888  41.386  21.401  1.00 22.23           C
 ATOM     44  C   SER A  -2      47.402  40.921  20.036  1.00 19.65           C  
 ATOM     45  O   SER A  -2      48.008  40.034  19.456  1.00 20.72           O  
 </pre>
+  * special cases in alternate locations ((data copied from 5DXX.pdb)
+  <pre>
+ATOM    448  N   MET A  61      48.127   9.414  21.012  1.00  8.02           N  
+ANISOU  448  N   MET A  61      952    878   1219    -50    501     95       N  
+ATOM    449  CA <b>A</b>MET A  61      47.494   8.918  22.231  0.58  8.39           C  
+ANISOU  449  CA <b>A</b>MET A  61     1091    827   1271     24    428    219       C  
+ATOM    450  CA <b>B</b>MET A  61      47.420   8.922  22.202  0.42  8.88           C  
+ANISOU  450  CA <b>B</b>MET A  61     1144    895   1334    -61    457    185       C  
+ATOM    451  C   MET A  61      47.346   7.404  22.267  1.00  8.78           C  
+ANISOU  451  C   MET A  61     1223    782   1330     59    378    169       C  
+ATOM    452  O   MET A  61      46.991   6.766  21.272  1.00 10.08           O  
+ANISOU  452  O   MET A  61     1398    943   1491     14     75    122       O  
+ATOM    453  CB <b>A</b>MET A  61      46.118   9.546  22.410  0.58  8.06           C  
+ANISOU  453  CB <b>A</b>MET A  61      903    838   1320    372    380    212       C  
+ATOM    454  CB <b>B</b>MET A  61      45.980   9.455  22.241  0.42  8.97           C  
+ANISOU  454  CB <b>B</b>MET A  61      930    991   1486      2    458    168       C  
+ATOM    455  CG <b>A</b>MET A  61      46.138  11.063  22.501  0.58  8.72           C  
+ANISOU  455  CG <b>A</b>MET A  61     1253    809   1251    307    330    165       C  
+ATOM    456  CG <b>B</b>MET A  61      45.805  10.973  22.171  0.42  9.66           C  
+ANISOU  456  CG <b>B</b>MET A  61     1110   1045   1516     57    274    111       C  
+ATOM    457  SD <b>A</b>MET A  61      44.516  11.746  22.852  0.58  9.87           S  
+ANISOU  457  SD <b>A</b>MET A  61     1393   1136   1221    329    227    121       S  
+ATOM    458  SD <b>B</b>MET A  61      44.071  11.452  21.925  0.42 11.25           S  
+ANISOU  458  SD <b>B</b>MET A  61     1357   1344   1573    -97    206    -11       S  
+ATOM    459  CE <b>A</b>MET A  61      43.632  11.262  21.374  0.58  8.79           C  
+ANISOU  459  CE <b>A</b>MET A  61      912   1125   1304    448    193     62       C  
+ATOM    460  CE <b>B</b>MET A  61      43.308  10.818  23.419  0.42 10.70           C  
+ANISOU  460  CE <b>B</b>MET A  61     1120   1371   1573     26    296    -15       C  
+...
+ATOM   2041  N   ARG A 268      68.983  -6.030  20.233  1.00 12.62           N  
+ANISOU 2041  N   ARG A 268     1676    819   2299    101    -35    523       N  
+ATOM   2042  CA <b>B</b>ARG A 268      68.988  -4.603  20.530  0.60 12.88           C  
+ANISOU 2042  CA <b>B</b>ARG A 268     1398    984   2513    141    107    402       C  
+ATOM   2043  CA <b>C</b>ARG A 268      68.989  -4.603  20.527  0.40 12.83           C  
+ANISOU 2043  CA <b>C</b>ARG A 268     1483    920   2471     82    157    473       C  
+ATOM   2044  C   ARG A 268      67.641  -3.953  20.247  1.00 11.56           C  
+ANISOU 2044  C   ARG A 268     1170    935   2286    -23     70    342       C  
+ATOM   2045  O   ARG A 268      66.930  -4.345  19.316  1.00 12.73           O  
+ANISOU 2045  O   ARG A 268     1496   1160   2181    -23     37    354       O  
+ATOM   2046  CB <b>B</b>ARG A 268      70.061  -3.890  19.701  0.60 15.09           C  
+ANISOU 2046  CB <b>B</b>ARG A 268     1382   1451   2901    308    108    405       C  
+ATOM   2047  CB <b>C</b>ARG A 268      70.065  -3.894  19.699  0.40 14.76           C  
+ANISOU 2047  CB <b>C</b>ARG A 268     1631   1189   2787    164    317    597       C  
+ATOM   2048  CG <b>B</b>ARG A 268      71.428  -4.538  19.755  0.60 20.70           C  
+ANISOU 2048  CG <b>B</b>ARG A 268     2380   2183   3300    506    138    227       C  
+ATOM   2049  CG <b>C</b>ARG A 268      71.458  -4.466  19.860  0.40 18.82           C  
+ANISOU 2049  CG <b>C</b>ARG A 268     2367   1677   3108    350    438    578       C  
+ATOM   2050  CD <b>B</b>ARG A 268      72.280  -3.968  20.869  0.60 24.96           C  
+ANISOU 2050  CD <b>B</b>ARG A 268     3408   2535   3540    600    301    -84       C  
+ATOM   2051  CD <b>C</b>ARG A 268      72.378  -3.477  20.542  0.40 22.04           C  
+ANISOU 2051  CD <b>C</b>ARG A 268     3150   1893   3329    467    727    531       C  
+ATOM   2052  NE <b>B</b>ARG A 268      73.616  -4.559  20.871  0.60 27.23           N  
+ANISOU 2052  NE <b>B</b>ARG A 268     3846   2843   3658    816    402   -233       N  
+ATOM   2053  NE <b>C</b>ARG A 268      73.461  -3.031  19.670  0.40 25.28           N  
+ANISOU 2053  NE <b>C</b>ARG A 268     3900   2201   3505    545    882    478       N  
+ATOM   2054  CZ <b>B</b>ARG A 268      74.606  -4.169  20.074  0.60 29.73           C  
+ANISOU 2054  CZ <b>B</b>ARG A 268     4396   3111   3790   1084    535   -418       C  
+ATOM   2055  CZ <b>C</b>ARG A 268      74.657  -3.607  19.612  0.40 28.07           C  
+ANISOU 2055  CZ <b>C</b>ARG A 268     4528   2513   3625    423    993    395       C  
+ATOM   2056  NH1<b>B</b>ARG A 268      74.412  -3.180  19.206  0.60 30.54           N  
+ANISOU 2056  NH1<b>B</b>ARG A 268     4601   3217   3787   1268    624   -504       N  
+ATOM   2057  NH1<b>C</b>ARG A 268      74.925  -4.665  20.369  0.40 29.81           N  
+ANISOU 2057  NH1<b>C</b>ARG A 268     4898   2709   3720    472    964    299       N  
+ATOM   2058  NH2<b>B</b>ARG A 268      75.794  -4.766  20.144  0.60 30.36           N  
+ANISOU 2058  NH2<b>B</b>ARG A 268     4511   3196   3828   1150    633   -562       N  
+ATOM   2059  NH2<b>C</b>ARG A 268      75.586  -3.125  18.795  0.40 28.14           N  
+ANISOU 2059  NH2<b>C</b>ARG A 268     4497   2583   3613    248   1151    380       N  
+</pre>
+
+In this case (5DXX.pdb), there are three different types of the alternative locations, **`A`**, **`B`**, and **`C`**. However, they distribute with irregular way. For instance, in **sequence 61**, **`A`** and **`B`** appeared, whereas in **sequence 268**, **`B`** and **`C`** emerged. As a result, it is impossible to simply use the `pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]` because that would delete all **`B`** and **`C`** labeled atoms in **sequence 268**!
+
+
 * insertion codes
 <pre>
 ATOM   1258  CD1 ILE A 185       4.002  11.557  18.921  1.00 19.47           C  
