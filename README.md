@@ -60,7 +60,7 @@ ATOM     43  CA  SER A  -2      47.888  41.386  21.401  1.00 22.23           C
 ATOM     44  C   SER A  -2      47.402  40.921  20.036  1.00 19.65           C  
 ATOM     45  O   SER A  -2      48.008  40.034  19.456  1.00 20.72           O  
 </pre>
-  * special cases in alternate locations ((data copied from 5DXX.pdb)
+  * special cases in alternate locations (data copied from 5DXX.pdb)
   <pre>
 ATOM    448  N   MET A  61      48.127   9.414  21.012  1.00  8.02           N  
 ANISOU  448  N   MET A  61      952    878   1219    -50    501     95       N  
