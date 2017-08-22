@@ -84,6 +84,7 @@ def pdb_reader(filename):
                 pass
         
     pdb_info = pd.DataFrame(pdb_info, columns=items)
+    pdb_info['Seq_Num'] = pdb_info['Seq_Num'].astype(int)
 
     #####################################################################
     #### locates the last 'TER' in the sequence.
@@ -129,14 +130,14 @@ AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
 
 def check_altloc(f, pdb_info):
     """ This function deals with the alternate location"""
-    altloc = pd.unique(pdb_info.Alt_Loc)
+    altloc = pdb_info.Alt_Loc.unique()
     if ('A' in altloc) or ('B' in altloc):
         return (f, list(altloc))
 
 
 def non_std_residues(f, pdb_info):
     """ This function checks the non-standard amino acid residues"""
-    res = pd.unique(pdb_info.ResName)
+    res = pdb_info.ResName.unique()
     nonstdRes = [i for i in res if i not in AMINO_ACIDS]
     if nonstdRes:
         return (f, nonstdRes)
@@ -145,7 +146,7 @@ def non_std_residues(f, pdb_info):
 def check_negative_seqnum(f, pdb_info):
     """ This function reports the negative sequence numbers, although it may not very
     important."""
-    seq_num = np.array(pdb_info.Seq_Num, dtype=int)
+    seq_num = pdb_info.Seq_Num
     if (seq_num < 0).any():
         return f
 
@@ -153,7 +154,7 @@ def check_negative_seqnum(f, pdb_info):
 def check_sequence_gaps(f, pdb_info):
     """ The aim of this function is for find the sequence gaps by checking
     the differences of the sequence numbers."""
-    seq_num = np.array(pdb_info.Seq_Num, dtype=int)
+    seq_num = pdb_info.Seq_Num
     seq_diff = np.abs(np.diff(seq_num))
 
     if np.any(seq_diff > 1):
@@ -167,7 +168,7 @@ def check_sequence_gaps(f, pdb_info):
 
 def check_insertion_code(f, pdb_info):
     """ This function deals with the insertion code"""
-    insert = pd.unique(pdb_info.InsCode)
+    insert = pdb_info.InsCode.unique()
     if ('A' in insert) or ('B' in insert):
         return (f, list(insert))
 
@@ -175,7 +176,7 @@ def check_insertion_code(f, pdb_info):
 def check_multiple_chains(f, pdb_info):
     """ This function checks the multiple chains exist or not 
     in the sequence."""
-    chains = pd.unique(pdb_info.ChainID)
+    chains = pdb_info.ChainID.unique()
     if len(chains) > 1:
         return (f, chains)
 
@@ -248,7 +249,13 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     pdb_info = pdb_info[pdb_info.InsCode == ' ']
     
     #### delete the redundant alternate locations, e.g. B, C, etc.
-    pdb_info = pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]
+    altloc = pdb_info.Alt_Loc.unique()
+    cleaned = pd.DataFrame()
+    groups = pdb_info.groupby(['Seq_Num'], sort=False)
+    for name, group in groups:
+        g = group.drop_duplicates(subset=["AtomTyp"], keep='first')
+        cleaned = cleaned.append(g)
+    pdb_info = cleaned
 
     #### delete the non-standard amino acid residues lines, including DNA and RNA
     if nonstdRes:
