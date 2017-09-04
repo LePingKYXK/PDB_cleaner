@@ -28,9 +28,7 @@ import os, sys, time
 
 def find_PDB_files(path):
     suffix = ".pdb"
-    files = np.asarray([f for f in os.listdir(path) if f.endswith(suffix)])
-#    print(files)
-    return np.sort(files)
+    return (f for f in os.listdir(path) if f.endswith(suffix))
 
 
 def pdb_reader(filename):
@@ -129,14 +127,14 @@ AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
 
 
 def check_altloc(f, pdb_info):
-    """ This function deals with the alternate location"""
+    """ This function deals with the alternate locations."""
     altloc = pdb_info.Alt_Loc.unique()
-    if ('A' in altloc) or ('B' in altloc):
+    if len(altloc) > 1:
         return (f, list(altloc))
 
 
 def non_std_residues(f, pdb_info):
-    """ This function checks the non-standard amino acid residues"""
+    """ This function checks the non-standard amino acid residues."""
     res = pdb_info.ResName.unique()
     nonstdRes = [i for i in res if i not in AMINO_ACIDS]
     if nonstdRes:
@@ -169,7 +167,7 @@ def check_sequence_gaps(f, pdb_info):
 def check_insertion_code(f, pdb_info):
     """ This function deals with the insertion code"""
     insert = pdb_info.InsCode.unique()
-    if ('A' in insert) or ('B' in insert):
+    if len(insert) > 1:
         return (f, list(insert))
 
 
@@ -181,7 +179,8 @@ def check_multiple_chains(f, pdb_info):
         return (f, chains)
 
 
-def save_report(altloc_info,non_std_Res,negativeSeq,seqGap_info,multiChains):
+def save_report(path, altloc_info, non_std_Res,
+                negativeSeq, seqGap_info, multiChains):
     report = "./special_PDB_cases.txt"
     line = ''.join(("\n", "-" * 50, "\n"))
     string = 'The files below have'
@@ -234,7 +233,7 @@ def save_report(altloc_info,non_std_Res,negativeSeq,seqGap_info,multiChains):
         head = ''.join(('{:<}\t', 'multiple chains: '))
         for m in multiChains:
             fmt5 = ''.join((head, "{:<4}" * len(m[1]), "\n"))
-            fw.write(fmt5.format(m[0],*m[1]))
+            fw.write(fmt5.format(m[0], *m[1]))
 
 
 def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
@@ -248,36 +247,33 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     #### delete the insertion residues lines
     pdb_info = pdb_info[pdb_info.InsCode == ' ']
     
-    #### delete the redundant alternate locations, e.g. B, C, etc.
-    altloc = pdb_info.Alt_Loc.unique()
-    cleaned = pd.DataFrame()
-    groups = pdb_info.groupby(['Seq_Num'], sort=False)
-    for name, group in groups:
-        g = group.drop_duplicates(subset=["AtomTyp"], keep='first')
-        cleaned = cleaned.append(g)
-    pdb_info = cleaned
+    #### delete the redundant alternate locations, only keep the first apperance
+    groups = pdb_info.groupby(['Seq_Num', 'ChainID'], sort=False)
+    pdb_info = groups.apply(lambda x:
+                            x.drop_duplicates(subset=["AtomTyp"], keep='first')
+                            if len(groups['Alt_Loc']) >= 2 else x)
 
-    #### delete the non-standard amino acid residues lines, including DNA and RNA
+    #### delete the non-standard amino acid residues, DNA and RNA
     if nonstdRes:
         pdb_info = pdb_info[~pdb_info.ResName.isin(nonstdRes[1])]
 
+    #### replaceing the 'HETATOM' by 'ATOM'    
+    pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
+    
     #### After deleting non-std residues, choose only one chain.
     chains = check_multiple_chains(f, pdb_info)
 
     #### PDB file has multiple chains and choose the longest one.
     if (chains and poly == 'one'):
         pdb_info = pdb_info[pdb_info.ChainID == pdb_info.ChainID.mode()[0]]
-        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_single_chain.pdb"))
         output_format(pdb_info, outputf)
     #### PDB file has multiple chains and choose all chains.
     elif (chains and poly == 'all'):
-        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_multichains.pdb"))
         output_format(pdb_info, outputf)
     #### PDB file has only one chain.
     else:
-        pdb_info['Records'].replace("HETATM", "ATOM", inplace=True)
         outputf = ''.join((path, f[:4], "_cleaned_one_chain.pdb"))
         output_format(pdb_info, outputf)
 
@@ -381,7 +377,8 @@ if __name__ == "__main__":
         steptime = time.time() - start_time
         print(timefmt.format(steptime))
 
-    save_report(altloc_info,non_std_Res,negativeSeq,seqGap_info,multiChains)
+    save_report(path, altloc_info, non_std_Res,
+                negativeSeq, seqGap_info, multiChains)
     total_time = time.time() - initial_time
-    fmtend = "Works Completed! Total Time Used: {:.4f} Seconds.\n"
+    fmtend = ''.join((line, "Works Completed! Total Time: {:.4f} Seconds.\n"))
     print(fmtend.format(total_time))
