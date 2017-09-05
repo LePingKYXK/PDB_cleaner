@@ -354,7 +354,7 @@ if __name__ == "__main__":
 
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
-            fmt = ''.join(("==== sequence gaps are: ", "{:}" * len(gaps[1]), "\n"))
+            fmt = ''.join(("sequence gaps are: ", "{:}" * len(gaps[1]), "\n"))
             print(fmt.format(*gaps[1]))
             seqGap_info.append(gaps)
 
@@ -367,7 +367,7 @@ if __name__ == "__main__":
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
             print('=-=-= {:} has multiple chains! =-=-='.format(f))
-            print('=-=-= The chains are {:}  =-=-=\n'.format(chains[1]))
+            print('The chains are {:}\n'.format(chains[1]))
             multiChains.append(chains)
         
         save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly)
