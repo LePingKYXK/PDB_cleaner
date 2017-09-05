@@ -130,14 +130,13 @@ def check_altloc(f, pdb_info):
     """ This function deals with the alternate locations."""
     altloc = pdb_info.Alt_Loc.unique()
     if len(altloc) > 1:
-        return (f, list(altloc))
+        return (f, np.sort(altloc))
 
 
 def non_std_residues(f, pdb_info):
     """ This function checks the non-standard amino acid residues."""
-    res = pdb_info.ResName.unique()
-    nonstdRes = [i for i in res if i not in AMINO_ACIDS]
-    if nonstdRes:
+    nonstdRes = pdb_info.ResName[~pdb_info.ResName.isin(AMINO_ACIDS)].unique()
+    if nonstdRes.any():
         return (f, nonstdRes)
 
 
@@ -168,7 +167,7 @@ def check_insertion_code(f, pdb_info):
     """ This function deals with the insertion code"""
     insert = pdb_info.InsCode.unique()
     if len(insert) > 1:
-        return (f, list(insert))
+        return (f, np.sort(insert))
 
 
 def check_multiple_chains(f, pdb_info):
@@ -179,20 +178,19 @@ def check_multiple_chains(f, pdb_info):
         return (f, chains)
 
 
-def save_report(path, altloc_info, non_std_Res,
+def save_report(path, number, altloc_info, non_std_Res,
                 negativeSeq, seqGap_info, multiChains):
-    report = "./special_PDB_cases.txt"
+    report = ''.join(("special_PDB_in_", str(number + 1), "_database.txt"))
     line = ''.join(("\n", "-" * 50, "\n"))
     string = 'The files below have'
 
-    with open(report, 'w') as fw:
+    with open(os.path.join(path, report), 'w') as fw:
         fw.write(line)
         title1 = ' '.join((string, 'alternate location', '\n'))
         fw.write(title1)
         head = ''.join(('{:<}\t', 'alternate locations: '))
         for a in altloc_info:
             fmt1 = ''.join((head, "{:<4}" * len(a[1][1:]), "\n"))
-            a[1].sort()
             fw.write(fmt1.format(a[0], *a[1][1:]))
         
         fw.write(line)
@@ -219,21 +217,20 @@ def save_report(path, altloc_info, non_std_Res,
             fw.write(fmt4.format(g[0], *g[1]))
 
         fw.write(line)
-        title1 = ' '.join((string, 'insertion code', '\n'))
-        fw.write(title1)
+        title5 = ' '.join((string, 'insertion code', '\n'))
+        fw.write(title5)
         head = ''.join(('{:<}\t', 'insertion code: '))
         for i in insert_info:
-            fmt1 = ''.join((head, "{:<4}" * len(i[1][1:]), "\n"))
-            i[1].sort()
-            fw.write(fmt1.format(i[0], *i[1][1:]))
+            fmt5 = ''.join((head, "{:<4}" * len(i[1][1:]), "\n"))
+            fw.write(fmt5.format(i[0], *i[1][1:]))
         
         fw.write(line)        
-        title5 = ' '.join((string, 'multiple chains','\n'))
-        fw.write(title5)
+        title6 = ' '.join((string, 'multiple chains','\n'))
+        fw.write(title6)
         head = ''.join(('{:<}\t', 'multiple chains: '))
         for m in multiChains:
-            fmt5 = ''.join((head, "{:<4}" * len(m[1]), "\n"))
-            fw.write(fmt5.format(m[0], *m[1]))
+            fmt6 = ''.join((head, "{:<4}" * len(m[1]), "\n"))
+            fw.write(fmt6.format(m[0], *m[1]))
 
 
 def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
@@ -303,9 +300,9 @@ def output_format(pdb_info, outputf):
                                 line[12],  #13. standard deviation of temperature
                                 line[13],  #14. element symbol
                                 line[14])) #15. charge on the atom 
-        str1 = "The cleaning work on {:} file has completed."
+        str1 = "The cleaning work on {:} file has completed.\n"
         str2 = "The cleaned PDB file is saved as {:}.\n"
-        fmtprint = ' '.join((str1, str2))
+        fmtprint = ''.join((str1, str2))
         print(fmtprint.format(f, outputf))
 
 
@@ -341,13 +338,13 @@ if __name__ == "__main__":
 
         altloc = check_altloc(f, pdb_info)    # return a tuple
         if altloc:
-            print('!!{:} has alternative location!!!!!!!!!!!!!!!'.format(f))
-            print('The alternate locations are: {:}\n'.format(altloc))
+            print('!!!!{:} has alternative location!!!!'.format(f))
+            print('The alternate locations are: {:}\n'.format(altloc[1][1:]))
             altloc_info.append(altloc)
 
         nonstdRes = non_std_residues(f, pdb_info)    # return a tuple
         if nonstdRes:
-            print('!!{:} has special Residue {:}\n'.format(f, nonstdRes))
+            print('!!!!{:} has special Residue {:}\n'.format(f, nonstdRes[1]))
             non_std_Res.append(nonstdRes)
 
         minusSeq = check_negative_seqnum(f, pdb_info)    # return the file name
@@ -357,27 +354,27 @@ if __name__ == "__main__":
 
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
-            fmt = ''.join(("==== sequence gaps are: ", "{:}" * len(gaps), "\n"))
-            print(fmt.format(*gaps))
+            fmt = ''.join(("==== sequence gaps are: ", "{:}" * len(gaps[1]), "\n"))
+            print(fmt.format(*gaps[1]))
             seqGap_info.append(gaps)
 
         insert = check_insertion_code(f, pdb_info)    # return a tuple
         if insert:
-            print('!!{:} has insertion code!!!!!!!!!!!!!!!'.format(f))
-            print('The insertion_code are: {:}\n'.format(insert))
+            print('!!!!{:} has insertion code!!!!'.format(f))
+            print('The insertion_code are: {:}\n'.format(insert[1][1:]))
             insert_info.append(insert)
 
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
             print('=-=-= {:} has multiple chains! =-=-='.format(f))
-            print('=-=-= The chains are {:}  =-=-=\n'.format(chains))
+            print('=-=-= The chains are {:}  =-=-=\n'.format(chains[1]))
             multiChains.append(chains)
         
         save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly)
         steptime = time.time() - start_time
         print(timefmt.format(steptime))
 
-    save_report(path, altloc_info, non_std_Res,
+    save_report(path, i, altloc_info, non_std_Res,
                 negativeSeq, seqGap_info, multiChains)
     total_time = time.time() - initial_time
     fmtend = ''.join((line, "Works Completed! Total Time: {:.4f} Seconds.\n"))
