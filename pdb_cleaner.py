@@ -367,7 +367,7 @@ if __name__ == "__main__":
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
             print('=-=-= {:} has multiple chains! =-=-='.format(f))
-            print('The chains are {:}\n'.format(chains[1]))
+            print('The chains are: {:}\n'.format(chains[1]))
             multiChains.append(chains)
         
         save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly)
