@@ -11,9 +11,8 @@ copyright: The Hebrew University of Jerusalem, and The Open University of Israel
 ##################################################################################
 
 # How to run this script:
-python PATH/pdb_cleaner.py
+python pdb_cleaner.py
 
-here, PATH is the directory contains this script, 
 Then, the program will ask you to specified the directory that the PDB files located, 
 and how to deal with multiple chains (keep all the chains or just one of them).
 If you choose "one", the program will choose the longest chain in the PDB file.
@@ -24,6 +23,13 @@ import numpy as np
 import pandas as pd
 import os, sys, time
 
+
+pathstr = '\nPlease type the directory contains PDB files: \n'
+options = '\nIf you want to retain all chains, please type: all\n' \
+              'If you want to keep only one chain, please type: one \n'
+
+filepath = input(pathstr)
+k_option = input(options)
 
 
 def find_PDB_files(path):
@@ -178,9 +184,9 @@ def check_multiple_chains(f, pdb_info):
         return (f, chains)
 
 
-def save_report(path, number, altloc_info, non_std_Res,
-                negativeSeq, seqGap_info, multiChains):
-    report = ''.join(("special_PDB_in_", str(number + 1), "_database.txt"))
+def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
+                seqGap_info, insert_info, multiChains):
+    report = ''.join(("special_PDB_in_", str(number), "_PDB_files.txt"))
     line = ''.join(("\n", "-" * 50, "\n"))
     string = 'The files below have'
 
@@ -233,7 +239,7 @@ def save_report(path, number, altloc_info, non_std_Res,
             fw.write(fmt6.format(m[0], *m[1]))
 
 
-def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
+def save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt):
     ''' This function first clean up the PDB file, only remain one chain,
     the non-labeled and A-alternate location, throw away the non-standard
     amino acid residues, delete the insertion code lines and also change 
@@ -245,10 +251,12 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     pdb_info = pdb_info[pdb_info.InsCode == ' ']
     
     #### delete the redundant alternate locations, only keep the first apperance
-    groups = pdb_info.groupby(['Seq_Num', 'ChainID'], sort=False)
-    pdb_info = groups.apply(lambda x:
-                            x.drop_duplicates(subset=["AtomTyp"], keep='first')
-                            if len(groups['Alt_Loc']) >= 2 else x)
+    if altloc:
+        groups = pdb_info.groupby(['Seq_Num', 'ChainID'], sort=False)
+        pdb_info = groups.apply(lambda x:
+                                x.drop_duplicates(subset=["AtomTyp"],
+                                                  keep='first')
+                                if len(groups['Alt_Loc']) >= 2 else x)
 
     #### delete the non-standard amino acid residues, DNA and RNA
     if nonstdRes:
@@ -261,29 +269,35 @@ def save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly):
     chains = check_multiple_chains(f, pdb_info)
 
     #### PDB file has multiple chains and choose the longest one.
-    if (chains and poly == 'one'):
+    if (chains and keep == 'one'):
         pdb_info = pdb_info[pdb_info.ChainID == pdb_info.ChainID.mode()[0]]
-        outputf = ''.join((path, f[:4], "_cleaned_single_chain.pdb"))
+        fname = ''.join((f[:4], "_cleaned_keep_single_chain.pdb"))
+        outputf = os.path.join(path, fname)
         output_format(pdb_info, outputf)
     #### PDB file has multiple chains and choose all chains.
-    elif (chains and poly == 'all'):
-        outputf = ''.join((path, f[:4], "_cleaned_multichains.pdb"))
+    elif (chains and keep == 'all'):
+        fname = ''.join((f[:4], "_cleaned_keep_multichains.pdb"))
+        outputf = os.path.join(path, fname)
         output_format(pdb_info, outputf)
     #### PDB file has only one chain.
     else:
-        outputf = ''.join((path, f[:4], "_cleaned_one_chain.pdb"))
+        fname = ''.join((f[:4], "_cleaned_one_chain.pdb"))
+        outputf = os.path.join(path, fname)
         output_format(pdb_info, outputf)
 
 
 def output_format(pdb_info, outputf):
     space = ' '
+    normal = "{:<6}{:>5}{:<2}{:<3}{:<}{:>3}{:>2}{:>4}{:<}{:>11}{:>8}{:>8}{:>6}{:>6}{:>12}{:>2}\n"
+    special = "{:<6}{:>5}{:<1}{:<3}{:<}{:>3}{:>2}{:>4}{:<}{:>11}{:>8}{:>8}{:>6}{:>6}{:>12}{:>2}\n"
+    
     with open(outputf, 'w') as fw:
         for line in pdb_info.values:
             fmt = ''
             if len(line[2]) <= 3:
-                fmt = "{:<6}{:>5}{:<2}{:<3}{:<}{:>3}{:>2}{:>4}{:<}{:>11}{:>8}{:>8}{:>6}{:>6}{:>12}{:>2}\n"
+                fmt = normal
             elif len(line[2]) == 4:
-                fmt = "{:<6}{:>5}{:<1}{:<3}{:<}{:>3}{:>2}{:>4}{:<}{:>11}{:>8}{:>8}{:>6}{:>6}{:>12}{:>2}\n"
+                fmt = special
             fw.write(fmt.format(line[0],   # 0. reconrd name "ATOM"
                                 line[1],   # 1. atom serial number
                                 space,     # 2. blank spaces
@@ -299,23 +313,32 @@ def output_format(pdb_info, outputf):
                                 line[11],  #12. standard deviation of occupancy
                                 line[12],  #13. standard deviation of temperature
                                 line[13],  #14. element symbol
-                                line[14])) #15. charge on the atom 
-        str1 = "The cleaning work on {:} file has completed.\n"
-        str2 = "The cleaned PDB file is saved as {:}.\n"
-        fmtprint = ''.join((str1, str2))
-        print(fmtprint.format(f, outputf))
+                                line[14])) #15. charge on the atom
 
 
-#############################################################################
-if __name__ == "__main__":
-    pathstr = '\nPlease type the directory contains PDB files: \n'
-    typestr = '\nIf you want to retain all chains, please type: all\n' \
-              'If you want to keep only one chain, please type: one \n'
-
-    path = input(pathstr)
-    poly = input(typestr)
-    pdbfiles = find_PDB_files(path)
+def main(path, keep):
+    ''' Workflow:
+    (1) Collect all the PDB files in the given directory;
     
+    (2) In each PDB file, check the following items:
+        (2.1) alternate locations;
+        (2.2) non-standard amino acid residues;
+        (2.3) negative sequence numbers (less important);
+        (2.4) sequence gaps;
+        (2.5) insertion code;
+        (2.6) multiple chains;
+        (2.7) *** to do: missing atoms ***
+        
+    (3) Clean the PDB files if the aforementioned items exist,
+        with following options if protein has multiple chains;
+        (3.1) keep all chains;
+        (3.2) keep the longest chain (or the 1st chain, if all
+        chains have the same length).
+        
+    (4) Save the cleaned PDB files one by one;
+    
+    (5) Save the summary report.
+    '''
     altloc_info = []
     non_std_Res = []
     negativeSeq = []
@@ -323,17 +346,25 @@ if __name__ == "__main__":
     insert_info = []
     multiChains = []
     
+    line = ''.join(("\n", "-" * 50, "\n"))
     timefmt = "The Used Time in this step is {:.4f} Seconds"
+
+    str_clean = "The cleaning work on {:} file has completed.\n"
+    str_saved = "The cleaned PDB file has been saved as:\n{:}\n"
+    printfmt = ''.join((str_clean, str_saved))
+    
+    count = 0
     initial_time = time.time()
+
+    pdbfiles = find_PDB_files(path)
 
     for i, f in enumerate(pdbfiles):
         start_time = time.time()
-
-        line = ''.join(("\n", "-" * 50, "\n"))
+        
         fmt0 = ''.join((line, "Check point: {:>5}\t, PDB IDS:\t {:s}"))
         print(fmt0.format(i + 1, f))
 
-        filename = ''.join((path, f))
+        filename = os.path.join(path, f)
         pdb_info = pdb_reader(filename)
 
         altloc = check_altloc(f, pdb_info)    # return a tuple
@@ -370,12 +401,19 @@ if __name__ == "__main__":
             print('The chains are: {:}\n'.format(chains[1]))
             multiChains.append(chains)
         
-        save_cleaned_PDB(path, f, pdb_info, nonstdRes, poly)
+        save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt)
         steptime = time.time() - start_time
         print(timefmt.format(steptime))
+        count += i
 
-    save_report(path, i, altloc_info, non_std_Res,
-                negativeSeq, seqGap_info, multiChains)
+    save_report(path, count, altloc_info, non_std_Res, negativeSeq,
+                seqGap_info, insert_info, multiChains)
+    
     total_time = time.time() - initial_time
     fmtend = ''.join((line, "Works Completed! Total Time: {:.4f} Seconds.\n"))
     print(fmtend.format(total_time))
+
+
+################################## main #######################################
+if __name__ == "__main__":
+    main(filepath, k_option)
