@@ -389,7 +389,7 @@ def main(path, keep):
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
             fmt_gap = ''.join(("\___/ {:} has sequence gap(s) \___/\n",
-                               "The sequence gaps are: ",
+                               "The sequence gaps are:",
                                " {:}" * len(gaps[1]), "\n"))
             print(fmt_gap.format(f, *gaps[1]))
             seqGap_info.append(gaps)
