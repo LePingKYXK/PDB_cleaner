@@ -161,7 +161,6 @@ def check_sequence_gaps(f, pdb_info):
     seq_diff = np.abs(np.diff(seq_num))
 
     if np.any(seq_diff > 1):
-        print('==== {:} has sequence gaps! ===='.format(f))
         gap_id = np.where(seq_diff > 1)[0]
         gap_head = seq_num[gap_id]
         gap_tail = seq_num[gap_id + 1]
@@ -185,21 +184,20 @@ def check_multiple_chains(f, pdb_info):
 
 
 def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
-                seqGap_info, insert_info, multiChains):
+                seqGap_info, insert_info, multiChains, drawline):
     report = ''.join(("special_PDB_in_", str(number), "_PDB_files.txt"))
-    line = ''.join(("\n", "-" * 50, "\n"))
     string = 'The files below have'
 
     with open(os.path.join(path, report), 'w') as fw:
-        fw.write(line)
-        title1 = ' '.join((string, 'alternate location', '\n'))
+        fw.write(''.join(("Summary", drawline)))
+        title1 = ' '.join((string, 'alternate locations', '\n'))
         fw.write(title1)
         head = ''.join(('{:<}\t', 'alternate locations: '))
         for a in altloc_info:
             fmt1 = ''.join((head, "{:<4}" * len(a[1][1:]), "\n"))
             fw.write(fmt1.format(a[0], *a[1][1:]))
         
-        fw.write(line)
+        fw.write(drawline)
         title2 = ' '.join((string, 'non-standard residues', '\n'))
         fw.write(title2)
         head = ''.join(('{:<}\t', 'non-standard residues: '))
@@ -207,14 +205,14 @@ def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
             fmt2 = ''.join((head, "{:<4}" * len(n[1]), "\n"))
             fw.write(fmt2.format(n[0], *n[1]))
 
-        fw.write(line)
+        fw.write(drawline)
         title3 = ' '.join((string, 'negative sequence number', '\n'))
         fw.write(title3)
         fmt3 = '{:<}\n'
         for s in negativeSeq:
             fw.write(fmt3.format(s))
 
-        fw.write(line)
+        fw.write(drawline)
         title4 = ' '.join((string, 'sequence gaps','\n'))
         fw.write(title4)
         head = ''.join(('{:<}\t', 'sequence gaps: '))
@@ -222,7 +220,7 @@ def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
             fmt4 = ''.join((head, "{:}" * len(g[1]), "\n"))
             fw.write(fmt4.format(g[0], *g[1]))
 
-        fw.write(line)
+        fw.write(drawline)
         title5 = ' '.join((string, 'insertion code', '\n'))
         fw.write(title5)
         head = ''.join(('{:<}\t', 'insertion code: '))
@@ -230,7 +228,7 @@ def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
             fmt5 = ''.join((head, "{:<4}" * len(i[1][1:]), "\n"))
             fw.write(fmt5.format(i[0], *i[1][1:]))
         
-        fw.write(line)        
+        fw.write(drawline)        
         title6 = ' '.join((string, 'multiple chains','\n'))
         fw.write(title6)
         head = ''.join(('{:<}\t', 'multiple chains: '))
@@ -346,12 +344,12 @@ def main(path, keep):
     insert_info = []
     multiChains = []
     
-    line = ''.join(("\n", "-" * 50, "\n"))
-    timefmt = "The Used Time in this step is {:.4f} Seconds"
+    drawline = ''.join(("\n", "-" * 50, "\n"))
+    time_fmt = "The Used Time in this step is {:.4f} Seconds"
 
     str_clean = "The cleaning work on {:} file has completed.\n"
     str_saved = "The cleaned PDB file has been saved as:\n{:}\n"
-    printfmt = ''.join((str_clean, str_saved))
+    print_fmt = ''.join((str_clean, str_saved))
     
     count = 0
     initial_time = time.time()
@@ -361,7 +359,7 @@ def main(path, keep):
     for i, f in enumerate(pdbfiles):
         start_time = time.time()
         
-        fmt0 = ''.join((line, "Check point: {:>5}\t, PDB IDS:\t {:s}"))
+        fmt0 = ''.join((drawline, "Check point: {:>5}\t, PDB IDS:\t {:s}"))
         print(fmt0.format(i + 1, f))
 
         filename = os.path.join(path, f)
@@ -369,49 +367,59 @@ def main(path, keep):
 
         altloc = check_altloc(f, pdb_info)    # return a tuple
         if altloc:
-            print('!!!!{:} has alternative location!!!!'.format(f))
-            print('The alternate locations are: {:}\n'.format(altloc[1][1:]))
+            fmt_alt = ''.join(('~~~~ {:} has alternative location ~~~~\n',
+                               'The alternate locations are: {:}\n'))
+            print(fmt_alt.format(f, altloc[1][1:]))
+            #print('The alternate locations are: {:}\n'.format(altloc[1][1:]))
             altloc_info.append(altloc)
 
         nonstdRes = non_std_residues(f, pdb_info)    # return a tuple
         if nonstdRes:
-            print('!!!!{:} has special Residue {:}\n'.format(f, nonstdRes[1]))
+            fmt_nonstd = ''.join(('**** {:} has special Residue ****',
+                                  'They are: {:}\n'))
+            print(fmt_nonstd.format(f, nonstdRes[1]))
             non_std_Res.append(nonstdRes)
 
         minusSeq = check_negative_seqnum(f, pdb_info)    # return the file name
         if minusSeq:
-            print('==== {:} has negative sequence number! ====\n'.format(f))
+            print('---- {:} has negative sequence number ----\n'.format(f))
             negativeSeq.append(minusSeq)
 
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
-            fmt = ''.join(("sequence gaps are: ", "{:}" * len(gaps[1]), "\n"))
-            print(fmt.format(*gaps[1]))
+            fmt_gap = ''.join(("\___/ {:} has sequence gap(s) \___/\n",
+                               "The sequence gaps are: ",
+                               " {:}" * len(gaps[1]), "\n"))
+            print(fmt_gap.format(f, *gaps[1]))
             seqGap_info.append(gaps)
 
         insert = check_insertion_code(f, pdb_info)    # return a tuple
         if insert:
-            print('!!!!{:} has insertion code!!!!'.format(f))
-            print('The insertion_code are: {:}\n'.format(insert[1][1:]))
+            fmt_insert = ''.join(("!!!! {:} has insertion code !!!!\n",
+                                  "The insertion_code are: {:}\n"))
+            #print('!!!!{:} has insertion code!!!!'.format(f))
+            print(fmt_insert.format(f, insert[1][1:]))
             insert_info.append(insert)
 
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
-            print('=-=-= {:} has multiple chains! =-=-='.format(f))
-            print('The chains are: {:}\n'.format(chains[1]))
+            fmt_chains = ''.join(("=-=-= {:} has multiple chains =-=-=\n",
+                                  "The chains are: {:}\n"))
+            #print('=-=-= {:} has multiple chains! =-=-='.format(f))
+            print(fmt_chains.format(f, chains[1]))
             multiChains.append(chains)
         
-        save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt)
+        save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, print_fmt)
         steptime = time.time() - start_time
-        print(timefmt.format(steptime))
+        print(time_fmt.format(steptime))
         count += i
 
     save_report(path, count, altloc_info, non_std_Res, negativeSeq,
-                seqGap_info, insert_info, multiChains)
+                seqGap_info, insert_info, multiChains, drawline)
     
     total_time = time.time() - initial_time
-    fmtend = ''.join((line, "Works Completed! Total Time: {:.4f} Seconds.\n"))
-    print(fmtend.format(total_time))
+    end_fmt = "{:}Works Completed! Total Time: {:.4f} Seconds.\n"
+    print(end_fmt.format(drawline, total_time))
 
 
 ################################## main #######################################
