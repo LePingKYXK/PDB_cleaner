@@ -272,11 +272,13 @@ def save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt):
         fname = ''.join((f[:4], "_cleaned_keep_single_chain.pdb"))
         outputf = os.path.join(path, fname)
         output_format(pdb_info, outputf)
+        
     #### PDB file has multiple chains and choose all chains.
     elif (chains and keep == 'all'):
         fname = ''.join((f[:4], "_cleaned_keep_multichains.pdb"))
         outputf = os.path.join(path, fname)
         output_format(pdb_info, outputf)
+        
     #### PDB file has only one chain.
     else:
         fname = ''.join((f[:4], "_cleaned_one_chain.pdb"))
@@ -370,7 +372,6 @@ def main(path, keep):
             fmt_alt = ''.join(('~~~~ {:} has alternative location ~~~~\n',
                                'The alternate locations are: {:}\n'))
             print(fmt_alt.format(f, altloc[1][1:]))
-            #print('The alternate locations are: {:}\n'.format(altloc[1][1:]))
             altloc_info.append(altloc)
 
         nonstdRes = non_std_residues(f, pdb_info)    # return a tuple
@@ -397,7 +398,6 @@ def main(path, keep):
         if insert:
             fmt_insert = ''.join(("!!!! {:} has insertion code !!!!\n",
                                   "The insertion_code are: {:}\n"))
-            #print('!!!!{:} has insertion code!!!!'.format(f))
             print(fmt_insert.format(f, insert[1][1:]))
             insert_info.append(insert)
 
@@ -405,7 +405,6 @@ def main(path, keep):
         if chains:
             fmt_chains = ''.join(("=-=-= {:} has multiple chains =-=-=\n",
                                   "The chains are: {:}\n"))
-            #print('=-=-= {:} has multiple chains! =-=-='.format(f))
             print(fmt_chains.format(f, chains[1]))
             multiChains.append(chains)
         
