@@ -304,7 +304,7 @@ If you choose "one", the program will choose the longest chain in the PDB file (
         
     ...(2.8) ** to do: missing atoms **
         
-    (3) Clean the PDB files if the aforementioned items exist,
+3. Clean the PDB files if the aforementioned items exist,
         with following options if protein has multiple chains;
     
     ...(3.1) remove hydrogein, if the user specified "y";
@@ -314,6 +314,6 @@ If you choose "one", the program will choose the longest chain in the PDB file (
     ...(3.3) keep the longest chain (or the 1st chain, if all
         chains have the same length), if the user specified "one".
         
-    (4) Save the cleaned PDB files one by one;
+4. Save the cleaned PDB files one by one;
     
-    (5) Save the summary report.
+5. Save the summary report.
