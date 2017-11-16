@@ -27,9 +27,11 @@ import os, sys, time
 pathstr = '\nPlease type the directory contains PDB files: \n'
 options = '\nIf you want to retain all chains, please type: all\n' \
               'If you want to keep only one chain, please type: one \n'
+rmh_str = '\nDo you want to remove all hydrogen atoms? (y or n)\n'
 
 filepath = input(pathstr)
-k_option = input(options)
+k_option = input(options).lower()
+remove_H = input(rmh_str).lower()
 
 
 def find_PDB_files(path):
@@ -147,8 +149,8 @@ def non_std_residues(f, pdb_info):
 
 
 def check_negative_seqnum(f, pdb_info):
-    """ This function reports the negative sequence numbers, although it may not very
-    important."""
+    """ This function reports the negative sequence numbers,
+    although it may not very important."""
     seq_num = pdb_info.Seq_Num
     if (seq_num < 0).any():
         return f
@@ -176,15 +178,22 @@ def check_insertion_code(f, pdb_info):
 
 
 def check_multiple_chains(f, pdb_info):
-    """ This function checks the multiple chains exist or not 
+    """ This function checks if the multiple chains exist or not 
     in the sequence."""
     chains = pdb_info.ChainID.unique()
     if len(chains) > 1:
         return (f, chains)
 
 
-def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
-                seqGap_info, insert_info, multiChains, drawline):
+def check_hydrogen(f, pdb_info):
+    """ This function checks if the hydrogen atoms exist or not 
+    in the sequence."""
+    if pdb_info.AtomTyp.str.startswith("H").any():
+        return f
+
+
+def save_report(path, number, altloc_info, non_std_Res, hydrogens, 
+                seqGap_info, insert_info, multiChains, negativeSeq, drawline):
     report = ''.join(("special_PDB_in_", str(number), "_PDB_files.txt"))
     string = 'The files below have'
 
@@ -206,11 +215,11 @@ def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
             fw.write(fmt2.format(n[0], *n[1]))
 
         fw.write(drawline)
-        title3 = ' '.join((string, 'negative sequence number', '\n'))
+        title3 = ' '.join((string, 'hydrogen atoms', '\n'))
         fw.write(title3)
         fmt3 = '{:<}\n'
-        for s in negativeSeq:
-            fw.write(fmt3.format(s))
+        for h in hydrogens:
+            fw.write(fmt3.format(h))
 
         fw.write(drawline)
         title4 = ' '.join((string, 'sequence gaps','\n'))
@@ -235,9 +244,17 @@ def save_report(path, number, altloc_info, non_std_Res, negativeSeq,
         for m in multiChains:
             fmt6 = ''.join((head, "{:<4}" * len(m[1]), "\n"))
             fw.write(fmt6.format(m[0], *m[1]))
+            
+        fw.write(drawline)
+        title7 = ' '.join((string, 'negative sequence number', '\n'))
+        fw.write(title7)
+        fmt3 = '{:<}\n'
+        for s in negativeSeq:
+            fw.write(fmt3.format(s))
 
 
-def save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt):
+def save_cleaned_PDB(path, f, pdb_info, altloc, h, remove_H,
+                     nonstdRes, keep, printfmt):
     ''' This function first clean up the PDB file, only remain one chain,
     the non-labeled and A-alternate location, throw away the non-standard
     amino acid residues, delete the insertion code lines and also change 
@@ -255,6 +272,10 @@ def save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, printfmt):
                                 x.drop_duplicates(subset=["AtomTyp"],
                                                   keep='first')
                                 if len(groups['Alt_Loc']) >= 2 else x)
+
+    #### remove hydrogen atoms
+    if h and remove_H in ['y', 'yes']:
+        pdb_info = pdb_info[~pdb_info.AtomTyp.str.startswith("H")]
 
     #### delete the non-standard amino acid residues, DNA and RNA
     if nonstdRes:
@@ -316,7 +337,7 @@ def output_format(pdb_info, outputf):
                                 line[14])) #15. charge on the atom
 
 
-def main(path, keep):
+def main(path, keep, hydrogen):
     ''' Workflow:
     (1) Collect all the PDB files in the given directory;
     
@@ -327,7 +348,8 @@ def main(path, keep):
         (2.4) sequence gaps;
         (2.5) insertion code;
         (2.6) multiple chains;
-        (2.7) *** to do: missing atoms ***
+        (2.7) hydrogen atoms;
+        (2.8) *** to do: missing atoms ***
         
     (3) Clean the PDB files if the aforementioned items exist,
         with following options if protein has multiple chains;
@@ -341,6 +363,7 @@ def main(path, keep):
     '''
     altloc_info = []
     non_std_Res = []
+    Hatoms_info = []
     negativeSeq = []
     seqGap_info = []
     insert_info = []
@@ -381,6 +404,11 @@ def main(path, keep):
             print(fmt_nonstd.format(f, nonstdRes[1]))
             non_std_Res.append(nonstdRes)
 
+        h_atoms = check_hydrogen(f, pdb_info)
+        if h_atoms:
+            print('#### {:} has hydrogen atoms ####\n'.format(f))
+            Hatoms_info.append(h_atoms)
+
         minusSeq = check_negative_seqnum(f, pdb_info)    # return the file name
         if minusSeq:
             print('---- {:} has negative sequence number ----\n'.format(f))
@@ -408,13 +436,15 @@ def main(path, keep):
             print(fmt_chains.format(f, chains[1]))
             multiChains.append(chains)
         
-        save_cleaned_PDB(path, f, pdb_info, altloc, nonstdRes, keep, print_fmt)
+        save_cleaned_PDB(path, f, pdb_info, altloc, h_atoms,
+                         remove_H, nonstdRes, keep, print_fmt)
+        
         steptime = time.time() - start_time
         print(time_fmt.format(steptime))
         count += i
 
-    save_report(path, count, altloc_info, non_std_Res, negativeSeq,
-                seqGap_info, insert_info, multiChains, drawline)
+    save_report(path, count, altloc_info, non_std_Res, Hatoms_info, 
+                seqGap_info, insert_info, multiChains, negativeSeq, drawline)
     
     total_time = time.time() - initial_time
     end_fmt = "{:}Works Completed! Total Time: {:.4f} Seconds.\n"
@@ -423,4 +453,4 @@ def main(path, keep):
 
 ################################## main #######################################
 if __name__ == "__main__":
-    main(filepath, k_option)
+    main(filepath, k_option, remove_H)
