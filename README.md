@@ -302,7 +302,7 @@ If you choose "one", the program will choose the longest chain in the PDB file (
         
     2.7. hydrogen atoms;
         
-    2.8. **** to do: missing atoms ****
+    2.8. __** to do: missing atoms **__
         
 3. Clean the PDB files if the aforementioned items exist,
    with following options if protein has multiple chains;
