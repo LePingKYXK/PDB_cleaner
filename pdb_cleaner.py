@@ -349,13 +349,17 @@ def main(path, keep, hydrogen):
         (2.5) insertion code;
         (2.6) multiple chains;
         (2.7) hydrogen atoms;
-        (2.8) *** to do: missing atoms ***
+        (2.8) ** to do: missing atoms **
         
     (3) Clean the PDB files if the aforementioned items exist,
         with following options if protein has multiple chains;
-        (3.1) keep all chains;
-        (3.2) keep the longest chain (or the 1st chain, if all
-        chains have the same length).
+        
+        (3.1) remove hydrogein, if the user specified "y";
+        
+        (3.2) keep all chains if the user specified "all";
+        
+        (3.3) keep the longest chain (or the 1st chain, if
+        all chains have the same length), if the user specified "one".
         
     (4) Save the cleaned PDB files one by one;
     
