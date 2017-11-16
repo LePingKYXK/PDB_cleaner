@@ -287,7 +287,9 @@ If you choose "one", the program will choose the longest chain in the PDB file (
 
 1. Collect all the PDB files in the given directory;
 2. In each PDB file, check the following items:
+
 ...2.1. alternate locations;
+
 ...2.2. non-standard amino acid residues;
         
     ...(2.3) negative sequence numbers (less important);
