@@ -183,7 +183,7 @@ ANISOU 1280  N   LYS A 187     1974   1786   1795     -5   -177    290       N
 </pre>
 As shown above, the same sequence number (186) labeled with two insertion codes (A and B), however, there are two kinds of residues ASP and SER!
 
-* When I save the cleaned results, I found another alignment issue... (data copied from 1bty.pdb)
+* When I save the cleaned results, I found another alignment issue... (data copied from 1BTY.pdb)
 <pre>
 ATOM      1  N   ILE A  16      35.700  19.589  20.234  1.00 10.94           N  
 ATOM      2  CA  ILE A  16      35.550  20.497  19.066  1.00 10.97           C  
@@ -228,3 +228,80 @@ ATOM     40  HA2 GLY A  18      40.513  22.729  14.176  1.00 11.84           H
 ATOM     41  HA3 GLY A  18      39.023  22.532  13.283  1.00 11.64           H  
 </pre>
 where "HG12", "HG13", "HG21", "HG22", "HG23", "HD11", "HD12", and "HD13" are one character left-shifted compared with the preceding lines.
+
+
+* Usually, PDB files do not contain hydrogen atoms (might due to the highly dynamic of the motion of hydrogen atoms or the limitation of the X-ray resolution). However, in some PDB file, e.g. 5JRY.pdb, hydrogen atoms were recorded. 
+<pre>
+ATOM      1  N   MET A   1       3.164  22.103 135.939  1.00 28.43           N  
+ANISOU    1  N   MET A   1     3558   4003   3241    245    418   -535       N  
+ATOM      2  CA  MET A   1       3.182  20.676 135.533  1.00 27.33           C  
+ANISOU    2  CA  MET A   1     3398   3863   3124    254    483   -543       C  
+ATOM      3  C   MET A   1       3.889  20.519 134.187  1.00 26.06           C  
+ANISOU    3  C   MET A   1     3199   3710   2993    137    508   -477       C  
+ATOM      4  O   MET A   1       3.671  21.292 133.254  1.00 26.86           O  
+ANISOU    4  O   MET A   1     3353   3787   3064    176    487   -391       O  
+ATOM      5  CB  MET A   1       1.755  20.132 135.441  1.00 27.72           C  
+ANISOU    5  CB  MET A   1     3472   3915   3143    245    541   -550       C  
+ATOM      6  <b>H</b>   MET A   1       2.770  22.181 136.733  1.00 34.12           H  
+ATOM      7  <b>HA</b>  MET A   1       3.659  20.162 136.203  1.00 32.80           H  
+ATOM      8  N   LEU A   2       4.740  19.510 134.085  1.00 23.71           N  
+ANISOU    8  N   LEU A   2     2783   3443   2781    -63    570   -535       N  
+ATOM      9  CA  LEU A   2       5.389  19.232 132.817  1.00 21.69           C  
+ANISOU    9  CA  LEU A   2     2418   3187   2638   -244    572   -551       C  
+ATOM     10  C   LEU A   2       4.358  18.763 131.793  1.00 20.93           C  
+ANISOU   10  C   LEU A   2     2144   3167   2643   -261    488   -592       C  
+ATOM     11  O   LEU A   2       3.268  18.294 132.137  1.00 21.65           O  
+ANISOU   11  O   LEU A   2     2148   3333   2746   -381    548   -733       O  
+ATOM     12  CB  LEU A   2       6.449  18.148 133.007  1.00 20.95           C  
+ANISOU   12  CB  LEU A   2     2388   3018   2555   -362    577   -509       C  
+ATOM     13  CG  LEU A   2       7.526  18.465 134.041  1.00 20.97           C  
+ANISOU   13  CG  LEU A   2     2473   2948   2547   -376    504   -471       C  
+ATOM     14  CD1 LEU A   2       8.523  17.324 134.149  1.00 21.51           C  
+ANISOU   14  CD1 LEU A   2     2624   2963   2586   -440    390   -438       C  
+ATOM     15  CD2 LEU A   2       8.236  19.754 133.671  1.00 21.33           C  
+ANISOU   15  CD2 LEU A   2     2560   2944   2601   -381    439   -472       C  
+ATOM     16  <b>H</b>   LEU A   2       4.955  18.978 134.726  1.00 28.45           H  
+ATOM     17  <b>HA</b>  LEU A   2       5.819  20.035 132.484  1.00 26.03           H  
+ATOM     18  <b>HB2</b> LEU A   2       6.007  17.331 133.287  1.00 25.14           H  
+ATOM     19  <b>HB3</b> LEU A   2       6.894  18.000 132.158  1.00 25.14           H  
+ATOM     20  <b>HG</b>  LEU A   2       7.110  18.586 134.909  1.00 25.16           H  
+ATOM     21 <b>HD11</b> LEU A   2       9.193  17.553 134.812  1.00 25.81           H  
+ATOM     22 <b>HD12</b> LEU A   2       8.053  16.519 134.418  1.00 25.81           H  
+ATOM     23 <b>HD13</b> LEU A   2       8.943  17.189 133.285  1.00 25.81           H  
+ATOM     24 <b>HD21</b> LEU A   2       8.916  19.941 134.336  1.00 25.60           H  
+ATOM     25 <b>HD22</b> LEU A   2       8.646  19.648 132.798  1.00 25.60           H  
+ATOM     26 <b>HD23</b> LEU A   2       7.588  20.475 133.648  1.00 25.60           H  
+</pre>
+In this case, I added a new option in my PDB_cleaner script enabling the users to choose whether remove all hydrogen atoms or not.
+
+## How to run this script
+This script can be run in both Linux and Windows system. The command is shown below,
+
+$`python pdb_cleaner.py`
+
+Then, the program will ask you to specified the directory that the PDB files located, and how to deal with multiple chains (keep all the chains or just one of them).
+
+If you choose "one", the program will choose the longest chain in the PDB file (if all chains have the same length, the first chain will be kept).
+
+* Workflow:
+    (1) Collect all the PDB files in the given directory;
+    
+    (2) In each PDB file, check the following items:
+        (2.1) alternate locations;
+        (2.2) non-standard amino acid residues;
+        (2.3) negative sequence numbers (less important);
+        (2.4) sequence gaps;
+        (2.5) insertion code;
+        (2.6) multiple chains;
+        (2.7) hydrogen atoms;
+        (2.8) ** to do: missing atoms **
+        
+    (3) Clean the PDB files if the aforementioned items exist,
+        with following options if protein has multiple chains;
+        (3.1) keep all chains;
+        (3.2) keep the longest chain (or the 1st chain, if all
+        chains have the same length).
+        
+    (4) Save the cleaned PDB files one by one;
+    
+    (5) Save the summary report.
