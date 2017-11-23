@@ -90,7 +90,6 @@ def pdb_reader(filename):
                 pass
         
     pdb_info = pd.DataFrame(pdb_info, columns=items)
-    pdb_info['Seq_Num'] = pdb_info['Seq_Num'].astype(int)
 
     #####################################################################
     #### locates the last 'TER' in the sequence.
@@ -151,7 +150,7 @@ def non_std_residues(f, pdb_info):
 def check_negative_seqnum(f, pdb_info):
     """ This function reports the negative sequence numbers,
     although it may not very important."""
-    seq_num = pdb_info.Seq_Num
+    seq_num = pdb_info.Seq_Num.values.astype(int)
     if (seq_num < 0).any():
         return f
 
@@ -159,13 +158,15 @@ def check_negative_seqnum(f, pdb_info):
 def check_sequence_gaps(f, pdb_info):
     """ The aim of this function is for find the sequence gaps by checking
     the differences of the sequence numbers."""
-    seq_num = pdb_info.Seq_Num
+    seq_num = pdb_info.Seq_Num.values.astype(int)
     seq_diff = np.abs(np.diff(seq_num))
 
     if np.any(seq_diff > 1):
         gap_id = np.where(seq_diff > 1)[0]
-        gap_head = seq_num[gap_id]
-        gap_tail = seq_num[gap_id + 1]
+        gap_head = map(":".join,
+                       pdb_info[["ChainID", "Seq_Num"]].values[gap_id])
+        gap_tail = map(":".join,
+                       pdb_info[["ChainID", "Seq_Num"]].values[gap_id + 1])
         gap = list(zip(gap_head, gap_tail))
         return (f, gap)
 
@@ -192,9 +193,9 @@ def check_hydrogen(f, pdb_info):
         return f
 
 
-def save_report(path, number, altloc_info, non_std_Res, hydrogens, 
-                seqGap_info, insert_info, multiChains, negativeSeq, drawline):
-    report = ''.join(("special_PDB_in_", str(number), "_PDB_files.txt"))
+def save_report(path, altloc_info, non_std_Res, hydrogens, seqGap_info,
+                insert_info, multiChains, negativeSeq, drawline):
+    report = "special_PDB_files.txt"
     string = 'The files below have'
 
     with open(os.path.join(path, report), 'w') as fw:
@@ -373,14 +374,13 @@ def main(path, keep, hydrogen):
     insert_info = []
     multiChains = []
     
-    drawline = ''.join(("\n", "-" * 50, "\n"))
+    drawline = ''.join(("\n", "-" * 79, "\n"))
     time_fmt = "The Used Time in this step is {:.4f} Seconds"
 
     str_clean = "The cleaning work on {:} file has completed.\n"
     str_saved = "The cleaned PDB file has been saved as:\n{:}\n"
     print_fmt = ''.join((str_clean, str_saved))
     
-    count = 0
     initial_time = time.time()
 
     pdbfiles = find_PDB_files(path)
@@ -445,10 +445,9 @@ def main(path, keep, hydrogen):
         
         steptime = time.time() - start_time
         print(time_fmt.format(steptime))
-        count += i
 
-    save_report(path, count, altloc_info, non_std_Res, Hatoms_info, 
-                seqGap_info, insert_info, multiChains, negativeSeq, drawline)
+    save_report(path, altloc_info, non_std_Res, Hatoms_info, seqGap_info,
+                insert_info, multiChains, negativeSeq, drawline)
     
     total_time = time.time() - initial_time
     end_fmt = "{:}Works Completed! Total Time: {:.4f} Seconds.\n"
