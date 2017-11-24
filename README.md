@@ -172,10 +172,10 @@ ATOM   2059  NH2<b>C</b>ARG A 268      75.586  -3.125  18.795  0.40 28.14       
 ANISOU 2059  NH2<b>C</b>ARG A 268     4497   2583   3613    248   1151    380       N  
 </pre>
 
-In this case (5DXX.pdb), there are three different types of the alternative locations, **`A`**, **`B`**, and **`C`** high-lighted with the bold font. However, they distribute with irregular way. For instance, in **sequence 61**, **`A`** and **`B`** appeared, whereas in **sequence 268**, **`B`** and **`C`** emerged. As a result, it is impossible to simply use the `pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]` because that would delete all **`B`** and **`C`** labeled atoms in **sequence 268**!
+In this case (5DXX.pdb), there are three different types of the alternative locations, **`A`**, **`B`**, and **`C`** high-lighted with the bold font. However, they distribute with irregular way. For instance, in **sequence 61**, **`A`** and **`B`** appeared, whereas in **sequence 268**, **`B`** and **`C`** emerged. As a result, it is impossible to simply use the ```pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]``` because that would delete all **`B`** and **`C`** labeled atoms in **sequence 268**!
 
 **Improvement or Debug (Sep. 04, 2017)** By using pandas df.groupby() on the ['Seq_Num', 'ChainID'] columns, we can focus on each specific residue and keep the first alternative location, no matter the first one is 'A' or 'B' or 'C'. The code is show as following
-~~~
+```python
     #### delete the redundant alternate locations, only keep the first apperance
     if altloc:
         groups = pdb_info.groupby(['Seq_Num', 'ChainID'], sort=False)
@@ -183,7 +183,7 @@ In this case (5DXX.pdb), there are three different types of the alternative loca
                                 x.drop_duplicates(subset=["AtomTyp"],
                                                   keep='first')
                                 if len(groups['Alt_Loc']) >= 2 else x)
-~~~
+```
 
 * insertion codes
 <pre>
