@@ -208,7 +208,7 @@ ANISOU 1266  N   ASP A 186<b>A</b>    2335   2266   1814    -93   -227    410   
 ATOM   1267  CA  ASP A 186<b>A</b>      6.193  20.046  16.803  1.00 18.33           C  
 ANISOU 1267  CA  ASP A 186<b>A</b>    2517   2396   2051    -76   -248    453       C  
 ATOM   1268  C   ASP A 186<b>A</b>      5.389  19.957  18.110  1.00 21.71           C  
-ANISOU 1268  C   ASP A 186<b>A</b>   2920   2782   2548    -46   -251    420       C  
+ANISOU 1268  C   ASP A 186<b>A</b>   2920   2782   2548    -46   -251    420        C  
 ATOM   1269  O   ASP A 186<b>A</b>      4.477  20.754  18.337  1.00 23.99           O  
 ANISOU 1269  O   ASP A 186<b>A</b>    3201   3034   2879    -21   -276    447       O  
 ATOM   1270  CB  ASP A 186<b>A</b>      5.342  20.626  15.640  1.00 20.86           C  
@@ -326,6 +326,10 @@ ATOM     25 <b>HD22</b> LEU A   2       8.646  19.648 132.798  1.00 25.60       
 ATOM     26 <b>HD23</b> LEU A   2       7.588  20.475 133.648  1.00 25.60           H  
 </pre>
 **Improvement (Nov. 16, 2017)** In this case, I added a new option in my PDB_cleaner script enabling the users to choose whether remove all hydrogen atoms or not.
+
+## Modules required
+- Numpy (version 1.9.1 or above)
+- Pandas (version 1.19.2 or above)
 
 ## How to run this script
 This script can be run in both Linux and Windows system. The command is shown below,
