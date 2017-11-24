@@ -15,6 +15,8 @@ ATOM      4  O   GLY A   1      64.683  47.291   3.943  1.00 11.91           O
 <b>ANISOU</b>    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O  
 </pre>
 
+The simplest way is to delete the ANISOU lines.
+
 * HETATM
 
 * non-standard amino acid residues (data copied from 2o2x.pdb)
@@ -27,11 +29,51 @@ ATOM    822  OD2 ASP A 112      24.586   9.016  35.848  1.00 11.81           O
 <b>HETATM</b>  826  O   <b>MSE</b> A 113      23.362   9.026  28.750  1.00  9.51           O  
 <b>HETATM</b>  827  CB  <b>MSE</b> A 113      26.563   8.959  29.078  1.00  8.81           C  
 <b>HETATM</b>  828  CG  <b>MSE</b> A 113      27.157   8.896  27.700  1.00  8.23           C  
-<b>HETATM</b>  829 SE   <b>MSE</b> A 113      28.681   7.732  27.499  0.75 12.65          SE  
+<b>HETATM</b>  829  SE  <b>MSE</b> A 113      28.681   7.732  27.499  0.75 12.65          SE  
 <b>HETATM</b>  830  CE  <b>MSE</b> A 113      30.013   8.895  28.258  1.00 18.85           C  
 ATOM    831  N   VAL A 114      24.306  10.362  27.178  1.00  7.56           N  
 ATOM    832  CA  VAL A 114      23.308  10.072  26.129  1.00  7.93           C  
 </pre>
+
+Since PDBSlicer could not deal with non-standard residues, the simplest way is to delete them.
+
+* Missing Residue(s) or so-called Sequence Gap(s) (data copied from 1nzj.pdb)
+<pre>
+ATOM   1756  O   LEU A 222      48.274   3.534  34.949  1.00 27.98           O  
+ANISOU 1756  O   LEU A 222     3531   3513   3584     47    -26      6       O  
+ATOM   1757  CB  LEU A 222      45.906   2.133  33.476  1.00 26.02           C  
+ANISOU 1757  CB  LEU A 222     3274   3295   3315     29     58     -5       C  
+ATOM   1758  N   ASN A 223      47.050   5.216  34.027  1.00 28.96           N  
+ANISOU 1758  N   ASN A 223     3698   3595   3707     53      7     21       N  
+ATOM   1759  CA  ASN A 223      47.326   6.262  35.028  1.00 29.62           C  
+ANISOU 1759  CA  ASN A 223     3782   3735   3737     11     12    -25       C  
+ATOM   1760  C   ASN A 223      48.230   5.851  36.192  1.00 30.19           C  
+ANISOU 1760  C   ASN A 223     3871   3833   3767     45     -3     -6       C  
+ATOM   1761  O   ASN A 223      47.951   6.165  37.354  1.00 31.23           O  
+ANISOU 1761  O   ASN A 223     4074   3965   3824     76     26    -70       O  
+<b>ATOM   1762  CB  ASN A 223      46.003   6.831  35.561  1.00 29.98           C</b>  
+<b>ANISOU 1762  CB  ASN A 223     3798   3785   3804     36     15      8       C</b>  
+<b>ATOM   1763  N   ALA A 237      50.141  13.856  28.172  1.00 30.51           N</b>  
+<b>ANISOU 1763  N   ALA A 237     3895   3875   3821     32     28    -17       N</b>  
+ATOM   1764  CA  ALA A 237      50.857  13.904  26.900  1.00 30.22           C  
+ANISOU 1764  CA  ALA A 237     3816   3837   3827      7      2      7       C  
+ATOM   1765  C   ALA A 237      52.347  13.656  27.124  1.00 30.06           C  
+ANISOU 1765  C   ALA A 237     3809   3808   3803     26     11    -16       C  
+ATOM   1766  O   ALA A 237      52.869  13.962  28.189  1.00 30.54           O  
+ANISOU 1766  O   ALA A 237     3901   3866   3834     34    -52     -8       O  
+ATOM   1767  CB  ALA A 237      50.648  15.254  26.254  1.00 30.32           C  
+ANISOU 1767  CB  ALA A 237     3814   3832   3871     20      0      0       C  
+ATOM   1768  N   LEU A 238      53.035  13.117  26.121  1.00 29.79           N  
+ANISOU 1768  N   LEU A 238     3760   3773   3785      9     -4    -12       N  
+ATOM   1769  CA  LEU A 238      54.470  12.845  26.250  1.00 29.52           C  
+ANISOU 1769  CA  LEU A 238     3743   3740   3733      9      9    -18       C  
+</pre>
+
+The bold font lines indicate the **discontinuous** sequence numbers (223 ...empty... 237) due to the missing residues. We called this case as sequence gap. It is a very serious problem because **the Ramachandran subunit is defined by three adjacent residues.** It is immpossible to directly choose residue number series (222, 223, 237) and (2233, 237, 238) as the members of the Ramachandran subunit. The solution is that treat the peptide as segments, e.g. from beginning to residue number 223, then from residue number 237 to the end. If the PDB file has more than one gap, we divide it into several segments based on the locations of the gaps. Note: the discontinuous sequence number between different chains also treated as 'gap', just because it is easy for programming.
+
+**Improvement (Nov. 16, 2017)** In the printing and report format, the chain ID was added aside to the sequence number, e.g. ('A:223', 'A:237'). Previously, only the sequence numbers between gap(s) were showed. 
+
+
 * alternate locations (data copied from 3ife.pdb)
 <pre>
 ATOM     21  CE1 PHE A  -4      40.991  47.856  19.364  1.00 27.65           C  
@@ -60,6 +102,7 @@ ATOM     43  CA  SER A  -2      47.888  41.386  21.401  1.00 22.23           C
 ATOM     44  C   SER A  -2      47.402  40.921  20.036  1.00 19.65           C  
 ATOM     45  O   SER A  -2      48.008  40.034  19.456  1.00 20.72           O  
 </pre>
+
   * special cases in alternate locations (data copied from 5DXX.pdb)
   <pre>
 ATOM    448  N   MET A  61      48.127   9.414  21.012  1.00  8.02           N  
@@ -129,8 +172,18 @@ ATOM   2059  NH2<b>C</b>ARG A 268      75.586  -3.125  18.795  0.40 28.14       
 ANISOU 2059  NH2<b>C</b>ARG A 268     4497   2583   3613    248   1151    380       N  
 </pre>
 
-In this case (5DXX.pdb), there are three different types of the alternative locations, **`A`**, **`B`**, and **`C`**. However, they distribute with irregular way. For instance, in **sequence 61**, **`A`** and **`B`** appeared, whereas in **sequence 268**, **`B`** and **`C`** emerged. As a result, it is impossible to simply use the `pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]` because that would delete all **`B`** and **`C`** labeled atoms in **sequence 268**!
+In this case (5DXX.pdb), there are three different types of the alternative locations, **`A`**, **`B`**, and **`C`** high-lighted with the bold font. However, they distribute with irregular way. For instance, in **sequence 61**, **`A`** and **`B`** appeared, whereas in **sequence 268**, **`B`** and **`C`** emerged. As a result, it is impossible to simply use the `pdb_info[(pdb_info.Alt_Loc == ' ') | (pdb_info.Alt_Loc == 'A')]` because that would delete all **`B`** and **`C`** labeled atoms in **sequence 268**!
 
+**Improvement or Debug (Sep. 04, 2017)** By using pandas df.groupby() on the ['Seq_Num', 'ChainID'] columns, we can focus on each specific residue and keep the first alternative location, no matter the first one is 'A' or 'B' or 'C'. The code is show as following
+~~~
+    #### delete the redundant alternate locations, only keep the first apperance
+    if altloc:
+        groups = pdb_info.groupby(['Seq_Num', 'ChainID'], sort=False)
+        pdb_info = groups.apply(lambda x:
+                                x.drop_duplicates(subset=["AtomTyp"],
+                                                  keep='first')
+                                if len(groups['Alt_Loc']) >= 2 else x)
+~~~
 
 * insertion codes
 <pre>
@@ -181,7 +234,7 @@ ANISOU 1279  OG  SER A 186<b>B</b>    2158   2085   1978      2   -220    264   
 ATOM   1280  N   LYS A 187       5.518  19.323  22.546  1.00 14.62           N  
 ANISOU 1280  N   LYS A 187     1974   1786   1795     -5   -177    290       N  
 </pre>
-As shown above, the same sequence number (186) labeled with two insertion codes (A and B), however, there are two kinds of residues ASP and SER!
+As shown above, the same sequence number (186) labeled with two insertion codes (A and B), however, there are two kinds of residues ASP and SER! The simplest way is to delete the residues labeled by insertion codes. 
 
 * When I save the cleaned results, I found another alignment issue... (data copied from 1BTY.pdb)
 <pre>
@@ -227,8 +280,8 @@ ATOM     39  H   GLY A  18      39.816  21.025  15.573  1.00 10.61           H
 ATOM     40  HA2 GLY A  18      40.513  22.729  14.176  1.00 11.84           H  
 ATOM     41  HA3 GLY A  18      39.023  22.532  13.283  1.00 11.64           H  
 </pre>
-where "HG12", "HG13", "HG21", "HG22", "HG23", "HD11", "HD12", and "HD13" are one character left-shifted compared with the preceding lines.
-
+where "HG12", "HG13", "HG21", "HG22", "HG23", "HD11", "HD12", and "HD13" are one character left-shifted compared with the preceding lines. 
+**Improvement or Debug (Jul. 31, 2017)** Implemented two printing formats to deal with this issue.
 
 * Usually, PDB files do not contain hydrogen atoms (might due to the highly dynamic of the motion of hydrogen atoms or the limitation of the X-ray resolution). However, in some PDB file, e.g. 5JRY.pdb, hydrogen atoms were recorded. 
 <pre>
@@ -272,7 +325,7 @@ ATOM     24 <b>HD21</b> LEU A   2       8.916  19.941 134.336  1.00 25.60       
 ATOM     25 <b>HD22</b> LEU A   2       8.646  19.648 132.798  1.00 25.60           H  
 ATOM     26 <b>HD23</b> LEU A   2       7.588  20.475 133.648  1.00 25.60           H  
 </pre>
-In this case, I added a new option in my PDB_cleaner script enabling the users to choose whether remove all hydrogen atoms or not.
+**Improvement (Nov. 16, 2017)** In this case, I added a new option in my PDB_cleaner script enabling the users to choose whether remove all hydrogen atoms or not.
 
 ## How to run this script
 This script can be run in both Linux and Windows system. The command is shown below,
