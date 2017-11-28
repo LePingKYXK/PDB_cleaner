@@ -8,11 +8,11 @@ Most of time, the PDB files are complicated, which have lots of redundant inform
 ATOM      1  N   GLY A   1      66.440  45.780   5.177  1.00 14.10           N  
 <span style="color:red"><b>ANISOU</b>    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N</span>  
 ATOM      2  CA  GLY A   1      65.947  45.284   3.863  1.00 12.08           C  
-<b>ANISOU</b>    2  CA  GLY A   1     1484   1486   1620     47    -39     75       C  
+<span style="color:red"><b>ANISOU</b>    2  CA  GLY A   1     1484   1486   1620     47    -39     75       C </span>   
 ATOM      3  C   GLY A   1      64.961  46.275   3.303  1.00 10.99           C  
-<b>ANISOU</b>    3  C   GLY A   1     1471   1204   1500     36     50    108       C  
+<span style="color:red"><b>ANISOU</b>    3  C   GLY A   1     1471   1204   1500     36     50    108       C </span>  
 ATOM      4  O   GLY A   1      64.683  47.291   3.943  1.00 11.91           O  
-<b>ANISOU</b>    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O  
+<span style="color:red"><b>ANISOU</b>    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O </span>   
 </pre>
 
 The simplest way is to delete the ANISOU lines.
