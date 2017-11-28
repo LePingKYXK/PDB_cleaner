@@ -6,7 +6,7 @@ Most of time, the PDB files are complicated, which have lots of redundant inform
 * ANISOU (data copied from 1lk2.pdb) 
 <pre>
 ATOM      1  N   GLY A   1      66.440  45.780   5.177  1.00 14.10           N  
-<span style="color:red"><b>ANISOU</b>    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N</style>  
+<span style="color:red"><b>ANISOU</b>    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N</span>  
 ATOM      2  CA  GLY A   1      65.947  45.284   3.863  1.00 12.08           C  
 <b>ANISOU</b>    2  CA  GLY A   1     1484   1486   1620     47    -39     75       C  
 ATOM      3  C   GLY A   1      64.961  46.275   3.303  1.00 10.99           C  
