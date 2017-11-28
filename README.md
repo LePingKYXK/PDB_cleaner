@@ -1,6 +1,6 @@
 # PDB_cleaner
 A Python3 script to clean up the PDB file
-
+<span style="color:red">some **This is Red Bold.** text</span>
 Most of time, the PDB files are complicated, which have lots of redundant information as shown below.
 
 * ANISOU (data copied from 1lk2.pdb) 
