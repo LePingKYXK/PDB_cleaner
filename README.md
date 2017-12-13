@@ -1,18 +1,18 @@
 # PDB_cleaner
 A Python3 script to clean up the PDB file
-<span style="color:red">some **This is Red Bold.** text</span>
+
 Most of time, the PDB files are complicated, which have lots of redundant information as shown below.
 
 * ANISOU (data copied from 1lk2.pdb) 
 <pre>
 ATOM      1  N   GLY A   1      66.440  45.780   5.177  1.00 14.10           N  
-<span style="color:red"><b>ANISOU</b>    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N</span>  
+<b>ANISOU</b>    1  N   GLY A   1     1908   1789   1659     99    -37     -3       N
 ATOM      2  CA  GLY A   1      65.947  45.284   3.863  1.00 12.08           C  
-<span style="color:red"><b>ANISOU</b>    2  CA  GLY A   1     1484   1486   1620     47    -39     75       C </span>   
+<b>ANISOU</b>    2  CA  GLY A   1     1484   1486   1620     47    -39     75       C   
 ATOM      3  C   GLY A   1      64.961  46.275   3.303  1.00 10.99           C  
-<span style="color:red"><b>ANISOU</b>    3  C   GLY A   1     1471   1204   1500     36     50    108       C </span>  
+<b>ANISOU</b>    3  C   GLY A   1     1471   1204   1500     36     50    108       C  
 ATOM      4  O   GLY A   1      64.683  47.291   3.943  1.00 11.91           O  
-<span style="color:red"><b>ANISOU</b>    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O </span>   
+<b>ANISOU</b>    4  O   GLY A   1     1390   1542   1593    -61     88    -19       O   
 </pre>
 
 The simplest way is to delete the ANISOU lines.
@@ -325,7 +325,135 @@ ATOM     24 <b>HD21</b> LEU A   2       8.916  19.941 134.336  1.00 25.60       
 ATOM     25 <b>HD22</b> LEU A   2       8.646  19.648 132.798  1.00 25.60           H  
 ATOM     26 <b>HD23</b> LEU A   2       7.588  20.475 133.648  1.00 25.60           H  
 </pre>
+
 **Improvement (Nov. 16, 2017)** In this case, I added a new option in my PDB_cleaner script enabling the users to choose whether remove all hydrogen atoms or not.
+
+**Improvement (Dec. 13, 2017)** Modified the script by using 'Element' (at column 76:78 in PDB file) as the condition. 
+
+(previously, I used ```pdb_info.ResName.str.startswith("H")```, which is slower).
+
+
+* ligands/solvents
+
+Some of the PDB files contains ligands/solvents (e.g. 1HQ2.pdb, which contains MG, CL, ACT, APC, PH2, HOH). Those information is listed below the last `TER` line of the protein chains. Here, only parts of them are shown as an example.
+
+<pre>
+TER    1288      TRP A 158                                                      
+HETATM 1289 MG    MG A 161      -2.797   1.884  19.740  1.00  6.70          MG  
+ANISOU 1289 MG    MG A 161     1097    971    478     15    338    -47      MG  
+HETATM 1290 MG    MG A 162      -5.869   3.399  19.011  1.00  7.19          MG  
+ANISOU 1290 MG    MG A 162      855   1269    610    165    324   -165      MG  
+HETATM 1291 CL    CL A 163     -16.840 -10.191  19.213  1.00 15.49          CL  
+ANISOU 1291 CL    CL A 163     2248   1922   1713    -61    398      8      CL  
+HETATM 1292  C   ACT A 164      -6.064  -1.027  24.199  1.00 37.58           C  
+ANISOU 1292  C   ACT A 164     7931   1868   4482    143  -3066   -290       C  
+HETATM 1293  O   ACT A 164      -6.343  -1.714  23.182  1.00 14.54           O  
+ANISOU 1293  O   ACT A 164     1249   1159   3116    -81    364     -9       O  
+HETATM 1294  OXT ACT A 164      -6.052   0.230  24.235  1.00 21.94           O  
+ANISOU 1294  OXT ACT A 164     2886   1823   3627     17   -396   -183       O  
+HETATM 1295  CH3 ACT A 164      -5.715  -1.844  25.481  1.00 22.07           C  
+ANISOU 1295  CH3 ACT A 164     2913   2265   3206   1466    -77   -427       C  
+...
+HETATM 1308  PG  APC A 171      -7.079   2.750  21.870  1.00  6.88           P  
+ANISOU 1308  PG  APC A 171      911    790    915     71    401   -193       P  
+HETATM 1309  O1G APC A 171      -6.616   1.344  22.152  1.00  9.60           O  
+ANISOU 1309  O1G APC A 171      871    835   1940    100    305    -71       O  
+HETATM 1310  O2G APC A 171      -8.226   3.192  22.715  1.00  6.03           O  
+ANISOU 1310  O2G APC A 171      938    744    609     31    592     49       O  
+HETATM 1311  O3G APC A 171      -7.294   3.042  20.400  1.00  7.08           O  
+ANISOU 1311  O3G APC A 171      758   1522    408     29    337   -202       O  
+HETATM 1312  PB  APC A 171      -4.370   3.764  21.854  1.00  6.31           P  
+ANISOU 1312  PB  APC A 171      909   1010    479     80    206    -23       P  
+HETATM 1313  O1B APC A 171      -4.334   3.108  20.508  1.00  6.48           O  
+ANISOU 1313  O1B APC A 171     1088    961    411    197    230    187       O  
+HETATM 1314  O2B APC A 171      -3.797   5.194  21.941  1.00  8.43           O  
+ANISOU 1314  O2B APC A 171     1093    812   1296   -168    237    134       O  
+HETATM 1315  O3B APC A 171      -5.859   3.729  22.378  1.00  6.62           O  
+ANISOU 1315  O3B APC A 171      943    913    661     23    285    -98       O  
+HETATM 1316  PA  APC A 171      -1.763   2.605  22.706  1.00  6.54           P  
+ANISOU 1316  PA  APC A 171      934    931    619    -41    125    -54       P  
+HETATM 1317  O1A APC A 171      -1.570   2.627  21.218  1.00  6.39           O  
+ANISOU 1317  O1A APC A 171     1032    863    534   -110     85    176       O  
+HETATM 1318  O2A APC A 171      -1.020   3.644  23.495  1.00  7.30           O  
+ANISOU 1318  O2A APC A 171     1040    900    833   -144    100   -132       O  
+HETATM 1319  C3A APC A 171      -3.506   2.689  22.980  1.00  6.45           C  
+ANISOU 1319  C3A APC A 171     1048    908    494    -10     50   -250       C  
+HETATM 1320  O5' APC A 171      -1.282   1.138  23.187  1.00  7.04           O  
+ANISOU 1320  O5' APC A 171     1051    899    726     99    216    199       O  
+HETATM 1321  C5' APC A 171      -1.316   0.838  24.562  1.00  6.44           C  
+ANISOU 1321  C5' APC A 171     1106    788    551     17    188     29       C  
+HETATM 1322  C4' APC A 171      -1.315  -0.661  24.737  1.00  6.29           C  
+ANISOU 1322  C4' APC A 171     1058   1000    331    -50    125    -50       C  
+HETATM 1323  O4' APC A 171      -2.428  -1.236  24.248  1.00  6.72           O  
+ANISOU 1323  O4' APC A 171     1097    794    660   -168     83   -206       O  
+HETATM 1324  C3' APC A 171      -0.144  -1.406  24.035  1.00  5.09           C  
+ANISOU 1324  C3' APC A 171      840    635    461    114   -260    152       C  
+HETATM 1325  O3' APC A 171       1.112  -1.294  24.673  1.00  8.26           O  
+ANISOU 1325  O3' APC A 171      951   1232    954    -47   -388     51       O  
+HETATM 1326  C2' APC A 171      -0.589  -2.790  23.968  1.00  6.71           C  
+ANISOU 1326  C2' APC A 171      899    800    850   -297    285    216       C  
+HETATM 1327  O2' APC A 171      -0.030  -3.702  24.840  1.00  7.41           O  
+ANISOU 1327  O2' APC A 171     1086    962    766     50    -20    387       O  
+HETATM 1328  C1' APC A 171      -2.056  -2.689  24.271  1.00  6.78           C  
+ANISOU 1328  C1' APC A 171      966   1005    607     69    -51    -28       C  
+HETATM 1329  N9  APC A 171      -3.025  -3.347  23.426  1.00  6.15           N  
+ANISOU 1329  N9  APC A 171      878   1013    448    -50      4    190       N  
+HETATM 1330  C8  APC A 171      -4.109  -4.250  23.860  1.00  5.38           C  
+ANISOU 1330  C8  APC A 171      963    639    442    128    139   -256       C  
+HETATM 1331  N7  APC A 171      -4.834  -4.707  22.964  1.00  6.53           N  
+ANISOU 1331  N7  APC A 171     1035    948    498     64    114   -303       N  
+HETATM 1332  C5  APC A 171      -4.263  -4.110  21.750  1.00  6.10           C  
+ANISOU 1332  C5  APC A 171      827    920    570     95     98    -94       C  
+HETATM 1333  C6  APC A 171      -4.711  -4.298  20.433  1.00  6.59           C  
+ANISOU 1333  C6  APC A 171      929    875    698    -65    341   -235       C  
+HETATM 1334  N6  APC A 171      -5.694  -5.022  20.065  1.00  5.61           N  
+ANISOU 1334  N6  APC A 171     1039    448    646    -77    172     -3       N  
+HETATM 1335  N1  APC A 171      -3.967  -3.599  19.483  1.00  5.96           N  
+ANISOU 1335  N1  APC A 171      967    811    486    -27    349    -21       N  
+HETATM 1336  C2  APC A 171      -2.985  -2.876  19.852  1.00  6.29           C  
+ANISOU 1336  C2  APC A 171      770    937    683     62    -16    219       C  
+HETATM 1337  N3  APC A 171      -2.475  -2.631  21.110  1.00  7.13           N  
+ANISOU 1337  N3  APC A 171     1440    715    552    -17    159     88       N  
+HETATM 1338  C4  APC A 171      -3.227  -3.343  22.105  1.00  5.85           C  
+ANISOU 1338  C4  APC A 171      888    820    514     95    -85    145       C  
+HETATM 1339  N1  PH2 A 181      -7.610   6.951  18.003  1.00  6.05           N  
+ANISOU 1339  N1  PH2 A 181     1052    952    296    -94     78   -172       N  
+HETATM 1340  C2  PH2 A 181      -7.491   7.106  19.276  1.00  6.24           C  
+ANISOU 1340  C2  PH2 A 181      751   1399    220     93    132     13       C  
+HETATM 1341  C3  PH2 A 181      -8.350   8.309  19.918  1.00 12.59           C  
+ANISOU 1341  C3  PH2 A 181     2656   1496    632   1012   -233   -450       C  
+HETATM 1342  N4  PH2 A 181      -9.107   9.037  19.073  1.00  8.47           N  
+ANISOU 1342  N4  PH2 A 181     1999    603    614     77    272     74       N  
+HETATM 1343  N5  PH2 A 181      -9.913   9.531  16.981  1.00  6.33           N  
+ANISOU 1343  N5  PH2 A 181      859    710    836   -209    210    247       N  
+HETATM 1344  C6  PH2 A 181     -10.042   9.367  15.609  1.00  6.17           C  
+ANISOU 1344  C6  PH2 A 181     1209    401    734    -75    256    195       C  
+HETATM 1345  N6  PH2 A 181     -10.760  10.085  14.925  1.00  7.94           N  
+ANISOU 1345  N6  PH2 A 181     1288    739    992    607    231     -6       N  
+HETATM 1346  N7  PH2 A 181      -9.294   8.335  15.116  1.00  6.20           N  
+ANISOU 1346  N7  PH2 A 181     1142    360    855     36     21    218       N  
+HETATM 1347  C8  PH2 A 181      -8.506   7.520  15.753  1.00  5.42           C  
+ANISOU 1347  C8  PH2 A 181      958    690    411     48    430    -24       C  
+HETATM 1348  O8  PH2 A 181      -7.860   6.607  15.236  1.00  6.00           O  
+ANISOU 1348  O8  PH2 A 181      592   1089    600    260     34   -140       O  
+HETATM 1349  C9  PH2 A 181      -8.445   7.773  17.143  1.00  6.49           C  
+ANISOU 1349  C9  PH2 A 181      857   1146    461    217     -8    -87       C  
+HETATM 1350  C10 PH2 A 181      -9.183   8.808  17.707  1.00  6.03           C  
+ANISOU 1350  C10 PH2 A 181     1024    777    489     36    384      5       C  
+HETATM 1351  C11 PH2 A 181      -6.690   6.344  20.210  1.00  7.41           C  
+ANISOU 1351  C11 PH2 A 181     1201   1148    469    155   -176    -66       C  
+HETATM 1352  O4  PH2 A 181      -5.798   5.476  19.528  1.00  8.32           O  
+ANISOU 1352  O4  PH2 A 181     1571    989    601    322    507   -127       O  
+HETATM 1353  O   HOH A 201      -1.216   0.760  18.974  1.00  7.10           O  
+ANISOU 1353  O   HOH A 201     1048   1158    492    106     60    -57       O  
+HETATM 1354  O   HOH A 202     -10.274 -11.677  16.318  1.00  6.62           O  
+ANISOU 1354  O   HOH A 202      865    817    835    -50    295    115       O  
+HETATM 1355  O   HOH A 203      -7.887   3.653  14.884  1.00  8.89           O  
+ANISOU 1355  O   HOH A 203     1091   1226   1061   -110    356    -28       O  
+</pre>
+
+**Improvement (Dec. 13, 2017)** PDB_cleaner is able to report them in the final report.txt file.
+
 
 ## Modules required
 - Numpy (version 1.9.1 or above)
@@ -344,22 +472,26 @@ If you choose "one", the program will choose the longest chain in the PDB file (
 
 1. Collect all the PDB files in the given directory;
 2. In each PDB file, check the following items:
+    
+    2.1 ligands;
 
-    2.1. alternate locations;
+    2.2. alternate locations;
 
-    2.2. non-standard amino acid residues;
+    2.3. non-standard amino acid residues;
 
-    2.3. negative sequence numbers (less important);
+    2.4. negative sequence numbers (less important);
         
-    2.4. sequence gaps;
+    2.5. sequence gaps;
         
-    2.5. insertion code;
+    2.6. insertion code;
         
-    2.6. multiple chains;
+    2.7. multiple chains;
         
-    2.7. hydrogen atoms;
+    2.8. hydrogen atoms;
         
-    2.8. __** to do: missing atoms **__
+    2.9. __** to do: missing atoms; **__
+    
+    2.10. __** to do: keep ligands/solvents or not. Currently, all ligands/solvents are removed. **__
         
 3. Clean the PDB files if the aforementioned items exist,
    with following options if protein has multiple chains;
