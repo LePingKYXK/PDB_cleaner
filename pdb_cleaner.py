@@ -18,6 +18,7 @@ and how to deal with multiple chains (keep all the chains or just one of them).
 If you choose "one", the program will choose the longest chain in the PDB file.
 '''
 
+from datetime import datetime
 from numpy import char
 import numpy as np
 import pandas as pd
@@ -73,10 +74,7 @@ def pdb_reader(filename):
             elif line.startswith("ENDMDL"):
                 pass
             
-            elif line.startswith("ATOM") or \
-                 line.startswith("HETATM") or \
-                 line.startswith("TER"):
-
+            elif line.startswith(("ATOM", "HETATM", "TER")):
                 info = pdb_structure(line)
                 pdb_info.append(info)
                 
@@ -98,10 +96,12 @@ def pdb_reader(filename):
     #####################################################################    
     #### return the pdb information without solvent.
     if pdb_info.shape[0] > terminal_id[-1]:
-        return pdb_info.drop(pdb_info.index[terminal_id[-1]+1:])
+        pdb = pdb_info.iloc[:terminal_id[-1]+1, :]
+        ligand = pdb_info.iloc[terminal_id[-1]+1:, :]
+        return pdb, ligand
 
     elif pdb_info.shape[0] == terminal_id[-1]:
-        return pdb_info
+        return pdb_info, pd.DataFrame()
 
     else: # pdb_info.shape[0] < terminal_id[-1], 
         print("Error!")
@@ -131,6 +131,14 @@ AMINO_ACIDS = char.asarray(['Ala', 'Arg', 'Asn', 'Asp',
                             'His', 'Ile', 'Leu', 'Lys',
                             'Met', 'Phe', 'Pro', 'Ser', 
                             'Thr', 'Trp', 'Tyr', 'Val']).upper()
+
+
+def check_ligand(f, ligands):
+    """ This function check if solvent exist in the PDB file."""
+    if ligands.empty:
+        print("No ligands in {:}".format(f))
+    else:
+        return (f, ligands.ResName.unique())
 
 
 def check_altloc(f, pdb_info):
@@ -193,65 +201,69 @@ def check_hydrogen(f, pdb_info):
         return f
 
 
-def save_report(path, altloc_info, non_std_Res, hydrogens, seqGap_info,
-                insert_info, multiChains, negativeSeq, drawline):
+def save_report(path, ligand_info, altloc_info, non_std_Res, hydrogens,
+                seqGap_info, insert_info, multiChains, negativeSeq, drawline):
     report = "special_PDB_files.txt"
     string = 'The files below have'
 
     with open(os.path.join(path, report), 'w') as fw:
-        fw.write(''.join(("Summary", drawline)))
-        title1 = ' '.join((string, 'alternate locations', '\n'))
-        fw.write(title1)
-        head = ''.join(('{:<}\t', 'alternate locations: '))
-        for a in altloc_info:
-            fmt1 = ''.join((head, "{:<4}" * len(a[1][1:]), "\n"))
-            fw.write(fmt1.format(a[0], *a[1][1:]))
-        
-        fw.write(drawline)
-        title2 = ' '.join((string, 'non-standard residues', '\n'))
-        fw.write(title2)
-        head = ''.join(('{:<}\t', 'non-standard residues: '))
-        for n in non_std_Res:
-            fmt2 = ''.join((head, "{:<4}" * len(n[1]), "\n"))
-            fw.write(fmt2.format(n[0], *n[1]))
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        head = ''.join(("Summary\t(", now, ')\n'))
+        fw.write(head)
 
-        fw.write(drawline)
-        title3 = ' '.join((string, 'hydrogen atoms', '\n'))
-        fw.write(title3)
-        fmt3 = '{:<}\n'
-        for h in hydrogens:
-            fw.write(fmt3.format(h))
-
-        fw.write(drawline)
-        title4 = ' '.join((string, 'sequence gaps','\n'))
-        fw.write(title4)
-        head = ''.join(('{:<}\t', 'sequence gaps: '))
-        for g in seqGap_info:
-            fmt4 = ''.join((head, "{:}" * len(g[1]), "\n"))
-            fw.write(fmt4.format(g[0], *g[1]))
-
-        fw.write(drawline)
-        title5 = ' '.join((string, 'insertion code', '\n'))
-        fw.write(title5)
-        head = ''.join(('{:<}\t', 'insertion code: '))
-        for i in insert_info:
-            fmt5 = ''.join((head, "{:<4}" * len(i[1][1:]), "\n"))
-            fw.write(fmt5.format(i[0], *i[1][1:]))
-        
-        fw.write(drawline)        
-        title6 = ' '.join((string, 'multiple chains','\n'))
-        fw.write(title6)
-        head = ''.join(('{:<}\t', 'multiple chains: '))
-        for m in multiChains:
-            fmt6 = ''.join((head, "{:<4}" * len(m[1]), "\n"))
-            fw.write(fmt6.format(m[0], *m[1]))
+        title_lig = ' '.join((drawline, string, 'ligands\n'))
+        fw.write(title_lig)
+        head_lig = ''.join(('{:<}\t', 'ligands: '))
+        for l in ligand_info:
+            fmt_lig = ''.join((head_lig, "{:<6s}" * len(l[1]), "\n"))
+            fw.write(fmt_lig.format(l[0], *l[1]))
             
-        fw.write(drawline)
-        title7 = ' '.join((string, 'negative sequence number', '\n'))
-        fw.write(title7)
-        fmt3 = '{:<}\n'
+        title_alt = ' '.join((drawline, string, 'alternate locations\n'))
+        fw.write(title_alt)
+        head_alt = ''.join(('{:<}\t', 'alternate locations: '))
+        for a in altloc_info:
+            fmt_alt = ''.join((head_alt, "{:<4}" * len(a[1][1:]), "\n"))
+            fw.write(fmt_alt.format(a[0], *a[1][1:]))
+        
+        title_nsr = ' '.join((drawline, string, 'non-standard residues\n'))
+        fw.write(title_nsr)
+        head_nsr = ''.join(('{:<}\t', 'non-standard residues: '))
+        for n in non_std_Res:
+            fmt_nsr = ''.join((head_nsr, "{:<4}" * len(n[1]), "\n"))
+            fw.write(fmt_nsr.format(n[0], *n[1]))
+
+        title_h = ' '.join((drawline, string, 'hydrogen atoms\n'))
+        fw.write(title_h)
+        fmt_h = '{:<}\n'
+        for h in hydrogens:
+            fw.write(fmt_h.format(h))
+
+        title_gap = ' '.join((drawline, string, 'sequence gaps\n'))
+        fw.write(title_gap)
+        head_gap = ''.join(('{:<}\t', 'sequence gaps: '))
+        for g in seqGap_info:
+            fmt_gap = ''.join((head_gap, "{:}" * len(g[1]), "\n"))
+            fw.write(fmt_gap.format(g[0], *g[1]))
+
+        title_ins = ' '.join((drawline, string, 'insertion code\n'))
+        fw.write(title_ins)
+        head_ins = ''.join(('{:<}\t', 'insertion code: '))
+        for i in insert_info:
+            fmt_ins = ''.join((head_ins, "{:<4}" * len(i[1][1:]), "\n"))
+            fw.write(fmt_ins.format(i[0], *i[1][1:]))
+        
+        title_mlc = ' '.join((drawline, string, 'multiple chains\n'))
+        fw.write(title_mlc)
+        head_mlc = ''.join(('{:<}\t', 'multiple chains: '))
+        for m in multiChains:
+            fmt_mlc = ''.join((head_mlc, "{:<4}" * len(m[1]), "\n"))
+            fw.write(fmt_mlc.format(m[0], *m[1]))
+            
+        title_ngs = ' '.join((drawline, string, 'negative sequence number\n'))
+        fw.write(title_ngs)
+        fmt_ngs = '{:<}\n'
         for s in negativeSeq:
-            fw.write(fmt3.format(s))
+            fw.write(fmt_ngs.format(s))
 
 
 def save_cleaned_PDB(path, f, pdb_info, altloc, h, remove_H,
@@ -275,8 +287,8 @@ def save_cleaned_PDB(path, f, pdb_info, altloc, h, remove_H,
                                 if len(groups['Alt_Loc']) >= 2 else x)
 
     #### remove hydrogen atoms
-    if h and remove_H in ['y', 'yes']:
-        pdb_info = pdb_info[~pdb_info.AtomTyp.str.startswith("H")]
+    if h and remove_H.lower() in ['y', 'yes']:
+        pdb_info = pdb_info[pdb_info.Element != "H"]
 
     #### delete the non-standard amino acid residues, DNA and RNA
     if nonstdRes:
@@ -366,6 +378,7 @@ def main(path, keep, hydrogen):
     
     (5) Save the summary report.
     '''
+    ligand_info = []
     altloc_info = []
     non_std_Res = []
     Hatoms_info = []
@@ -380,7 +393,19 @@ def main(path, keep, hydrogen):
     str_clean = "The cleaning work on {:} file has completed.\n"
     str_saved = "The cleaned PDB file has been saved as:\n{:}\n"
     print_fmt = ''.join((str_clean, str_saved))
-    
+
+    fmt_alt = ''.join(('~~~~ {:} has alternative location ~~~~\n',
+                       'The alternate locations are: {:}\n'))
+
+    fmt_nonstd = ''.join(('**** {:} has special Residue ****',
+                          'They are: {:}\n'))
+
+    fmt_insert = ''.join(("!!!! {:} has insertion code !!!!\n",
+                          "The insertion_code are: {:}\n"))
+
+    fmt_chains = ''.join(("=-=-= {:} has multiple chains =-=-=\n",
+                          "The chains are: {:}\n"))
+
     initial_time = time.time()
 
     pdbfiles = find_PDB_files(path)
@@ -388,23 +413,27 @@ def main(path, keep, hydrogen):
     for i, f in enumerate(pdbfiles):
         start_time = time.time()
         
-        fmt0 = ''.join((drawline, "Check point: {:>5}\t, PDB IDS:\t {:s}"))
+        fmt0 = ''.join((drawline, "Check point: {:>5}\t, PDB IDS:\t {:s}\n"))
         print(fmt0.format(i + 1, f))
 
         filename = os.path.join(path, f)
-        pdb_info = pdb_reader(filename)
+        pdb_info, ligands = pdb_reader(filename)
+
+        lig = check_ligand(f, ligands)    # return a tuple
+        if lig:
+            fmt_lig = ''.join(('Oo.. {:} has ligand(s) ..oO\n',
+                               'The ligand(s) information:\t',
+                               '{:<6s}' * len(lig[1]), '\n'))
+            print(fmt_lig.format(f, *lig[1]))
+            ligand_info.append(lig)
 
         altloc = check_altloc(f, pdb_info)    # return a tuple
         if altloc:
-            fmt_alt = ''.join(('~~~~ {:} has alternative location ~~~~\n',
-                               'The alternate locations are: {:}\n'))
             print(fmt_alt.format(f, altloc[1][1:]))
             altloc_info.append(altloc)
 
         nonstdRes = non_std_residues(f, pdb_info)    # return a tuple
         if nonstdRes:
-            fmt_nonstd = ''.join(('**** {:} has special Residue ****',
-                                  'They are: {:}\n'))
             print(fmt_nonstd.format(f, nonstdRes[1]))
             non_std_Res.append(nonstdRes)
 
@@ -418,25 +447,21 @@ def main(path, keep, hydrogen):
             print('---- {:} has negative sequence number ----\n'.format(f))
             negativeSeq.append(minusSeq)
 
+        insert = check_insertion_code(f, pdb_info)    # return a tuple
+        if insert:
+            print(fmt_insert.format(f, insert[1][1:]))
+            insert_info.append(insert)
+
         gaps = check_sequence_gaps(f, pdb_info)    # return a tuple
         if gaps:
             fmt_gap = ''.join(("\___/ {:} has sequence gap(s) \___/\n",
-                               "The sequence gaps are:",
+                               "The sequence gap(s) information: ",
                                " {:}" * len(gaps[1]), "\n"))
             print(fmt_gap.format(f, *gaps[1]))
             seqGap_info.append(gaps)
 
-        insert = check_insertion_code(f, pdb_info)    # return a tuple
-        if insert:
-            fmt_insert = ''.join(("!!!! {:} has insertion code !!!!\n",
-                                  "The insertion_code are: {:}\n"))
-            print(fmt_insert.format(f, insert[1][1:]))
-            insert_info.append(insert)
-
         chains = check_multiple_chains(f, pdb_info)    # return a tuple
         if chains:
-            fmt_chains = ''.join(("=-=-= {:} has multiple chains =-=-=\n",
-                                  "The chains are: {:}\n"))
             print(fmt_chains.format(f, chains[1]))
             multiChains.append(chains)
         
@@ -446,8 +471,8 @@ def main(path, keep, hydrogen):
         steptime = time.time() - start_time
         print(time_fmt.format(steptime))
 
-    save_report(path, altloc_info, non_std_Res, Hatoms_info, seqGap_info,
-                insert_info, multiChains, negativeSeq, drawline)
+    save_report(path, ligand_info, altloc_info, non_std_Res, Hatoms_info,
+                seqGap_info, insert_info, multiChains, negativeSeq, drawline)
     
     total_time = time.time() - initial_time
     end_fmt = "{:}Works Completed! Total Time: {:.4f} Seconds.\n"
